@@ -1,0 +1,54 @@
+# GameEngine Config
+
+Window  512 512
+
+Font    main            ../assets/fonts/ChocoShake.ttf
+Font    Arial           ../assets/fonts/arial.ttf
+Font    Arcade          ../assets/fonts/arcadeclassic.regular.ttf
+
+Music gameTheme         ../assets/Music/frogger.ogg
+Music missionTheme      ../assets/Music/tweener.ogg
+
+# Textures
+Texture Background      ../assets/Textures/background.png
+Texture Menu		../assets/Textures/MenuBackground.jpeg
+Texture Title           ../assets/Textures/FroggerTitle.png
+Texture Entities        ../assets/Textures/FroggerAtlas.png
+
+# Sprites
+Sprite Background       Background   0 0  480 600
+Sprite Title            Title 0 0 480 600
+
+#
+# SOUNDS
+Sound death             ../assets/Sound/froggerDie.wav
+Sound hop               ../assets/Sound/froggerMove.wav
+
+JSON                    ../assets/Textures/FroggerAtlas.json
+
+
+#
+#  Animation    Name            Texture     Speed   Repeats
+Animation       up              Entities    8        no
+Animation       down            Entities    8        no
+Animation       left            Entities    8        no
+Animation       right           Entities    8        no
+Animation       die             Entities    8        no
+
+Animation       2turtles        Entities    1        yes
+Animation       3turtles        Entities    1        yes
+Animation       tree1           Entities    1        no
+Animation       tree2           Entities    1        no
+
+Animation       car             Entities    1        no
+Animation       raceCarL        Entities    1        no
+Animation       raceCarR        Entities    1        no
+Animation       truck           Entities    1        no
+Animation       tractor         Entities    1        no
+
+Animation       bugIcon         Entities    1        no
+Animation       croc            Entities    1        yes
+Animation       crocIcon        Entities    1        no
+Animation       frogIcon        Entities    1        no
+Animation       lillyPad        Entities    1        no
+Animation       lives           Entities    1        no
