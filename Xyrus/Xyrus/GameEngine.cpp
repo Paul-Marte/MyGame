@@ -11,7 +11,7 @@
 
 GameEngine::GameEngine(const std::string& path)
 {
-	Assets::getInstance().loadFromFile("../config.txt"); // can path also here
+	Assets::getInstance().loadFromFile("../config.txt"); 
 	init(path);
 }
 

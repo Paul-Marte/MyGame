@@ -22,7 +22,7 @@ namespace {
 Scene_Xyrus::Scene_Xyrus(GameEngine* gameEngine, const std::string& levelPath)
 	: Scene(gameEngine)
 {
-	_game->_window.setSize(sf::Vector2u(512, 512));
+	
 	init(levelPath);
 }
 
@@ -30,7 +30,7 @@ void Scene_Xyrus::init(const std::string& levelPath) {
 	loadLevel(levelPath);
 	registerActions();
 
-	sf::Vector2f spawnPos{ _game->windowSize().x / 2.f, _game->windowSize().y - 20.f };
+	sf::Vector2f spawnPos{ _game->windowSize().x / 2.f, _game->windowSize().y / 2.f };
 
 	spawnPlayer(spawnPos);
 
@@ -51,85 +51,13 @@ void Scene_Xyrus::update(sf::Time dt)
 void Scene_Xyrus::sRender()
 {
 
-	for (auto e : _entityManager.getEntities("bkg")) {
-		if (e->getComponent<CSprite>().has) {
-			auto& sprite = e->getComponent<CSprite>().sprite;
-			_game->window().draw(sprite);
-		}
-	}
-
-	for (auto e : _entityManager.getEntities("vehicle")) {
-		auto& anim = e->getComponent<CAnimation>().animation;
-		auto& tfm = e->getComponent<CTransform>();
-		anim.getSprite().setPosition(tfm.pos);
-		_game->window().draw(anim.getSprite());
-
-		if (_drawAABB && e->hasComponent<CBoundingBox>()) {
-			auto box = e->getComponent<CBoundingBox>();
-			sf::RectangleShape rect;
-			rect.setSize(sf::Vector2f{ box.size.x, box.size.y });
-			centerOrigin(rect);
-			rect.setPosition(e->getComponent<CTransform>().pos);
-			rect.setFillColor(sf::Color(0, 0, 0, 0));
-			rect.setOutlineColor(sf::Color{ 0, 255, 0 });
-			rect.setOutlineThickness(2.f);
-			_game->window().draw(rect);
-		}
-	}
-
-
-	for (auto e : _entityManager.getEntities("river")) {
-		auto& anim = e->getComponent<CAnimation>().animation;
-		auto& tfm = e->getComponent<CTransform>();
-		anim.getSprite().setPosition(tfm.pos);
-		_game->window().draw(anim.getSprite());
-
-		if (_drawAABB && e->hasComponent<CBoundingBox>()) {
-			auto box = e->getComponent<CBoundingBox>();
-			sf::RectangleShape rect;
-			rect.setSize(sf::Vector2f{ box.size.x, box.size.y });
-			centerOrigin(rect);
-			rect.setPosition(e->getComponent<CTransform>().pos);
-			rect.setFillColor(sf::Color(0, 0, 0, 0));
-			rect.setOutlineColor(sf::Color{ 0, 255, 0 });
-			rect.setOutlineThickness(2.f);
-			_game->window().draw(rect);
-		}
-	}
+	_game->window().clear();
 
 	for (auto& e : _entityManager.getEntities()) {
-		if (e->getTag() == "bkg" || e->getTag() == "vehicle" || e->getTag() == "river")
-			continue;
-
 		auto& anim = e->getComponent<CAnimation>().animation;
 		auto& tfm = e->getComponent<CTransform>();
 		anim.getSprite().setPosition(tfm.pos);
 		_game->window().draw(anim.getSprite());
-
-		if (_drawAABB && e->hasComponent<CBoundingBox>()) {
-			auto box = e->getComponent<CBoundingBox>();
-			sf::RectangleShape rect;
-			rect.setSize(sf::Vector2f{ box.size.x, box.size.y });
-			centerOrigin(rect);
-			rect.setPosition(e->getComponent<CTransform>().pos);
-			rect.setFillColor(sf::Color(0, 0, 0, 0));
-			rect.setOutlineColor(sf::Color{ 0, 255, 0 });
-			rect.setOutlineThickness(2.f);
-			_game->window().draw(rect);
-		}
-	}
-	drawScore();
-	drawLife();
-	drawTimer();
-	if (_scoreTotal == _winningScore && _lives > 0) {
-		drawWin();
-		_isFinish = true;
-		return;
-	}
-	if (_lives < 1) {
-		drawGameOver();
-		drawLife();
-		return;
 	}
 
 }
@@ -229,7 +157,6 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 
 	if (pv != sf::Vector2f(0, 0)) {
 		pos += pv;
-		std::cout << "Frog x " << pos.x << " Frog y " << pos.y << "\n";
 	}
 
 }
@@ -257,200 +184,11 @@ void Scene_Xyrus::adjustPlayerPosition()
 	}
 }
 
-void Scene_Xyrus::spawnEnemyVehicle()
-{
-	auto height = _game->windowSize().y;
-	auto heightLevel = 40.f;
 
-	static const std::string vehicles[] =
-	{ "raceCarL", "raceCarR", "car", "tractor", "truck" };
-	float vehicleSpawnPos = 110.f;
-	float spacer = 140.f;
-	float vels[] =
-	{ -60.f,90.f,-120.f,150.f, -80.f };
-
-
-	for (int r{ 0 }; r < 5; r++) {
-		int vehicle;
-		if (r < 4)
-			vehicle = 3;
-		else {
-			vehicle = 2;
-			spacer = 200.f;
-
-		}
-
-		for (int c{ 0 }; c < vehicle; c++) {
-			sf::Vector2f pos{ vehicleSpawnPos + spacer * c, (height - (heightLevel * (r + 1) + 20.f)) };
-			auto vehicle = _entityManager.addEntity("vehicle");
-			vehicle->addComponent<CTransform>(pos, sf::Vector2f(vels[r], 0.f));
-
-			auto bb = vehicle->addComponent<CAnimation>(Assets::getInstance()
-				.getAnimation(vehicles[r])).animation.getBB();
-			vehicle->addComponent<CBoundingBox>(bb);
-		}
-	}
-}
-
-
-void Scene_Xyrus::adjustVehiclePosition()
-{
-	for (auto e : _entityManager.getEntities("vehicle")) {
-		if (e->hasComponent<CTransform>()) {
-			auto& pos = e->getComponent<CTransform>().pos;
-			auto vel = e->getComponent<CTransform>().vel;
-			auto width = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width;
-			if (vel.x < 0) {
-				if (pos.x < (width * -1))
-				{
-					pos.x = _game->windowSize().x + width;
-				}
-			}
-			else {
-				if (pos.x > _game->windowSize().x + width)
-				{
-					pos.x = (width * -1);
-				}
-			}
-		}
-	}
-}
-
-void Scene_Xyrus::spawnRiverEntities()
-{
-	auto height = _game->windowSize().y - 240.f;
-	auto heightLevel = 40.f;
-
-	static const std::string riverEntity[] =
-	{ "3turtles", "tree1", "2turtles", "tree2", "tree1", "lillyPad" };
-	float entitySpawnPos = 60.f;
-	float spacer;
-	float vels[] =
-	{ -60.f,90.f,-80.f,60.f, -180.f,0.f };
-	float multiplier = .5;
-	for (int r{ 0 }; r < 6; r++) {
-		int entity;
-		int instance;
-
-		switch (r) {
-		case 0:
-			entity = 4;
-			spacer = 150.f;
-			instance = 1;
-			entitySpawnPos = 40.f;
-			break;
-		case 1:
-			entity = 3;
-			spacer = 250.f;
-			instance = 1;
-			entitySpawnPos = 60.f;
-			break;
-		case 2:
-			entity = 3;
-			spacer = 200.f;
-			instance = 2;
-			entitySpawnPos = 20.f;
-			break;
-		case 3:
-			entity = 2;
-			spacer = 330.f;
-			instance = 1;
-			entitySpawnPos = 120.f;
-			break;
-		case 4:
-			entity = 3;
-			spacer = 160.f;
-			instance = 1;
-			entitySpawnPos = 60.f;
-			break;
-		case 5:
-			entity = 5;
-			spacer = 100.f;
-			instance = 1;
-			entitySpawnPos = 40.f;
-			break;
-		default:
-			break;
-		}
-
-		for (int c{ 0 }; c < entity; c++) {
-			for (int i{ 0 }; i < instance; i++) {
-				sf::Vector2f pos{ entitySpawnPos + (i * 65.f + c) + spacer * c, (height - (heightLevel * (r + 1) + 20.f)) };
-
-				auto vehicle = _entityManager.addEntity("river");
-				vehicle->addComponent<CTransform>(pos, sf::Vector2f(vels[r] * multiplier, 0.f));
-
-				auto bb = vehicle->addComponent<CAnimation>(Assets::getInstance()
-					.getAnimation(riverEntity[r])).animation.getBB();
-				vehicle->addComponent<CBoundingBox>(bb);
-
-				auto& f = vehicle->getComponent<CAnimation>().animation;
-				if (r == 0) {
-					if (!(i == 0 && c == 3)) {
-						while (f._frames.size() > 1) {
-							f._frames.pop_back();
-						}
-					}
-				}
-
-
-				if (r == 2) {
-					if (c == 0) {
-						while (f._frames.size() > 1) {
-							f._frames.pop_back();
-						}
-					}
-					else {
-						if (i == 0) {
-							while (f._frames.size() > 1) {
-								f._frames.pop_back();
-							}
-						}
-					}
-				}
-				f._currentFrame = i % 3;
-				/*		f._currentFrame = i % 3; */
-			}
-		}
-	}
-
-}
-
-void Scene_Xyrus::adjustRiverEntityPosition()
-{
-	float distance;
-	for (auto e : _entityManager.getEntities("river")) {
-		if (e->hasComponent<CTransform>()) {
-			auto& pos = e->getComponent<CTransform>().pos;
-			auto vel = e->getComponent<CTransform>().vel;
-			float width;
-			if (e->getComponent<CAnimation>().animation.getName() == "2turtles")
-				width = 65.f;
-			else if (e->getComponent<CAnimation>().animation.getName() == "3turtles")
-				width = 99.f;
-			else
-				width = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width;
-
-			if (vel.x < 0) {
-				if (pos.x < (width * -1))
-				{
-					pos.x = _game->windowSize().x + width;
-				}
-			}
-			else {
-				if (pos.x > _game->windowSize().x + width)
-				{
-					pos.x = width * -1;
-				}
-			}
-		}
-	}
-}
 
 void Scene_Xyrus::sSpawnMovingEntities()
 {
-	spawnEnemyVehicle();
-	spawnRiverEntities();
+	
 }
 
 void Scene_Xyrus::loadLevel(const std::string& path)
@@ -499,56 +237,10 @@ void Scene_Xyrus::sMovement(sf::Time dt)
 
 void Scene_Xyrus::sCollisions()
 {
-	checkVehicleCollision();
-	checkRiverCollision();
-}
-
-void Scene_Xyrus::checkVehicleCollision()
-{
-	auto& pos = _player->getComponent<CTransform>().pos;
-	for (auto e : _entityManager.getEntities("vehicle")) {
-		auto eGB = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
-
-		if (eGB.contains(pos) && _player->getComponent<CAnimation>().animation.getName() != "die") {
-			_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
-			SoundPlayer::getInstance().play("death", pos);
-			_lives--;
-		}
-	}
-	getScore();
-}
-
-void Scene_Xyrus::checkRiverCollision()
-{
-	auto& vel = _player->getComponent<CTransform>().vel;
-	vel.x = 0;
-	auto& pos = _player->getComponent<CTransform>().pos;
-
-	for (auto e : _entityManager.getEntities("river")) {
-		auto eGB = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
-		if (eGB.contains(pos)) {
-			if (e->getComponent<CAnimation>().animation.getName() == "lillyPad") {
-				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("down"));
-				_isComplete = true;
-				getScore();
-				_player->getComponent<CTransform>().pos = sf::Vector2f{ _game->windowSize().x / 2.f, _game->windowSize().y - 20.f };
-				return;
-			}
-			else
-				vel.x = e->getComponent<CTransform>().vel.x;
-		}
-	}
-
-	if (vel.x == 0 && pos.y < 340 && pos.y >80 && _player->getComponent<CAnimation>().animation.getName() != "die") {
-		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
-		SoundPlayer::getInstance().play("death", pos);
-		_lives--;
-	}
-	else if (_player->getComponent<CAnimation>().animation.getName() != "die") {
-		getScore();
-	}
 
 }
+
+
 
 
 
@@ -561,8 +253,7 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 
 
 	sAnimation(dt);
-	adjustVehiclePosition();
-	adjustRiverEntityPosition();
+
 
 	sMovement(dt);
 	sCollisions();

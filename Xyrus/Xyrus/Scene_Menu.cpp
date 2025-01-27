@@ -11,6 +11,15 @@ void Scene_Menu::onEnd()
 Scene_Menu::Scene_Menu(GameEngine* gameEngine)
 	: Scene(gameEngine)
 {
+	_game->_window.setSize(sf::Vector2u(512, 512));
+	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+
+
+	int x = (desktop.width - _game->_window.getSize().x) / 2;
+	int y = (desktop.height - _game->_window.getSize().y) / 2;
+	std::cout << x << "   " << y;
+
+	_game->_window.setPosition(sf::Vector2i(x, y));
 	init();
 }
 
@@ -71,7 +80,7 @@ void Scene_Menu::sRender()
 
 	sf::Text footer("UP: W    DOWN: S   SELECT:D    QUIT: ESC",
 	Assets::getInstance().getFont("main"), 20);
-	footer.setFillColor(normalColor);
+	footer.setFillColor(sf::Color::White);
 	footer.setPosition(32, 472);
 
 	_game->window().clear(backgroundColor);
@@ -114,7 +123,7 @@ void Scene_Menu::sDoAction(const Command& action)
 		else if (action.name() == "SELECT")
 		{
 			if(_menuIndex == 0)
-			_game->changeScene("SELECT", std::make_shared<Scene_Xyrus>(_game, "../assets/level1.txt"));
+			_game->changeScene("SELECT", std::make_shared<Scene_Xyrus>(_game, "../level1.txt"));
 		}
 		else if (action.name() == "QUIT")
 		{

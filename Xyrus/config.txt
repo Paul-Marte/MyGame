@@ -1,6 +1,7 @@
 # GameEngine Config
 
-Window  512 512
+Window  	512 512
+
 
 Font    main            ../assets/fonts/ChocoShake.ttf
 Font    Arial           ../assets/fonts/arial.ttf
@@ -13,7 +14,7 @@ Music missionTheme      ../assets/Music/tweener.ogg
 Texture Background      ../assets/Textures/background.png
 Texture Menu		../assets/Textures/MenuBackground.jpeg
 Texture Title           ../assets/Textures/FroggerTitle.png
-Texture Entities        ../assets/Textures/FroggerAtlas.png
+Texture Entities        ../assets/Textures/froggerAtlas.png
 
 # Sprites
 Sprite Background       Background   0 0  480 600
@@ -24,13 +25,18 @@ Sprite Title            Title 0 0 480 600
 Sound death             ../assets/Sound/froggerDie.wav
 Sound hop               ../assets/Sound/froggerMove.wav
 
-JSON                    ../assets/Textures/FroggerAtlas.json
+JSON                    ../assets/Textures/froggerAtlas.json
+
+
+
+
+
 
 
 #
 #  Animation    Name            Texture     Speed   Repeats
 Animation       up              Entities    8        no
-Animation       down            Entities    8        no
+Animation       down            Entities    8        yes
 Animation       left            Entities    8        no
 Animation       right           Entities    8        no
 Animation       die             Entities    8        no
@@ -41,7 +47,7 @@ Animation       tree1           Entities    1        no
 Animation       tree2           Entities    1        no
 
 Animation       car             Entities    1        no
-Animation       raceCarL        Entities    1        no
+Animation       WBC        	Entities    1        no
 Animation       raceCarR        Entities    1        no
 Animation       truck           Entities    1        no
 Animation       tractor         Entities    1        no
