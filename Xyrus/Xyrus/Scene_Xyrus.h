@@ -9,8 +9,12 @@
 #include "EntityManager.h"
 #include "Entity.h"
 #include "Scene.h"
+#include "Utilities.h"
 #include "GameEngine.h"
+#include <random>
 
+struct EnemyConfig { float  CR, SMIN, SMAX; };
+struct BulletConfig { int  FR, FG, FB, OR, OG, OB, OT, V, L; float SR, CR, S; };
 
 class Scene_Xyrus : public Scene {
 
@@ -31,13 +35,16 @@ class Scene_Xyrus : public Scene {
 	float					_timer = 90.f;
 	const float				_timerThreshold = 90.f;
 
+	EnemyConfig                 _enemyConfig;
+	BulletConfig                _bulletConfig;
+
 
 	//systems
 	void                    sMovement(sf::Time dt);
 	void                    sCollisions();
 	void                    sUpdate(sf::Time dt);
 	void	                onEnd() override;
-	void                    sSpawnMovingEntities();
+	void                    sSpawnWBC(sf::Time dt);
 	void					sAnimation(sf::Time dt);
 	void					drawScore();
 	void					getScore();
@@ -50,13 +57,20 @@ class Scene_Xyrus : public Scene {
 
 
 	// helper functions
+	void                    checkWBCWBCCollision();
+	void                    checkSlimeOutOfBounce();
 	void                    init(const std::string& path);
 	void                    loadLevel(const std::string& path);
 	void                    spawnPlayer(sf::Vector2f pos);
 	void                    playerMovement(sf::Time dt);
 	void                    adjustPlayerPosition();
+	void                    spawnWBC();
+	void                    checkPlayerWBCCollision();
+	void                    spawnSlime(sf::Vector2f mPos);
+	void                    sTeleport();
 	void	                registerActions();
 	void                    checkIfDead(sPtrEntt e);
+	void					sKeepWBCInBounds();
 
 public:
 	Scene_Xyrus(GameEngine* gameEngine, const std::string& levelPath);

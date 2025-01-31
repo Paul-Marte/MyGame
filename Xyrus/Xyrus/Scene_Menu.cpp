@@ -11,7 +11,7 @@ void Scene_Menu::onEnd()
 Scene_Menu::Scene_Menu(GameEngine* gameEngine)
 	: Scene(gameEngine)
 {
-	_game->_window.setSize(sf::Vector2u(512, 512));
+	_game->_window.setSize(sf::Vector2u(600, 600));
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 
 
@@ -71,7 +71,7 @@ void Scene_Menu::sRender()
 	auto& sprite = e->addComponent<CSprite>(Assets::getInstance().getTexture("Menu")).sprite;
 	sprite.setOrigin(0.f, 0.f);
 	sprite.setPosition(0.f, 0.f);
-	
+
 	static const sf::Color selectedColor(255, 255, 255);
 	static const sf::Color normalColor(0, 180, 0);	// changed to dark green
 
@@ -79,8 +79,8 @@ void Scene_Menu::sRender()
 
 
 	sf::Text footer("UP: W    DOWN: S   SELECT:D    QUIT: ESC",
-	Assets::getInstance().getFont("main"), 20);
-	footer.setFillColor(sf::Color::White);
+		Assets::getInstance().getFont("main"), 20);
+	footer.setFillColor(normalColor);
 	footer.setPosition(32, 472);
 
 	_game->window().clear(backgroundColor);
@@ -89,7 +89,7 @@ void Scene_Menu::sRender()
 	_menuText.setFillColor(normalColor);
 	_menuText.setString(_title);
 	_menuText.setPosition(_game->window().getSize().x / 2.f, 10);
-	_menuText.setOrigin(menuBounds.width/2.f, 0.f);
+	_menuText.setOrigin(menuBounds.width / 2.f, 0.f);
 	_game->window().draw(sprite);
 	_game->window().draw(_menuText);
 
@@ -103,7 +103,6 @@ void Scene_Menu::sRender()
 	}
 
 	_game->window().draw(footer);
-	//m_game->window().display();
 
 }
 
@@ -122,8 +121,8 @@ void Scene_Menu::sDoAction(const Command& action)
 		}
 		else if (action.name() == "SELECT")
 		{
-			if(_menuIndex == 0)
-			_game->changeScene("SELECT", std::make_shared<Scene_Xyrus>(_game, "../level1.txt"));
+			if (_menuIndex == 0)
+				_game->changeScene("SELECT", std::make_shared<Scene_Xyrus>(_game, "../level1.txt"));
 		}
 		else if (action.name() == "QUIT")
 		{

@@ -11,7 +11,7 @@
 
 GameEngine::GameEngine(const std::string& path)
 {
-	Assets::getInstance().loadFromFile("../config.txt"); 
+	Assets::getInstance().loadFromFile("../config.txt"); // can path also here
 	init(path);
 }
 
@@ -75,6 +75,13 @@ void GameEngine::sUserInput()
 			{
 				const std::string actionType = (event.type == sf::Event::KeyPressed) ? "START" : "END";
 				currentScene()->doAction(Command(currentScene()->getActionMap().at(event.key.code), actionType));
+			}
+		}
+		else if (event.type == sf::Event::MouseButtonPressed) {
+			if (currentScene()->getActionMap().contains(event.mouseButton.button))
+			{
+				const std::string actionType = "CLICK";
+				currentScene()->doAction(Command(currentScene()->getActionMap().at(event.mouseButton.button + 1000), actionType, event.mouseButton.x, event.mouseButton.y));
 			}
 		}
 	}

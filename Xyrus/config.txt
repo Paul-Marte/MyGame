@@ -1,6 +1,6 @@
 # GameEngine Config
 
-Window  	512 512
+Window  	600 600
 
 
 Font    main            ../assets/fonts/ChocoShake.ttf
@@ -11,8 +11,8 @@ Music gameTheme         ../assets/Music/frogger.ogg
 Music missionTheme      ../assets/Music/tweener.ogg
 
 # Textures
-Texture Background      ../assets/Textures/background.png
-Texture Menu		../assets/Textures/MenuBackground.jpeg
+Texture Background      ../assets/Textures/BlackRed.jpg
+Texture Menu		../assets/Textures/MenuBackground600.jpg
 Texture Title           ../assets/Textures/FroggerTitle.png
 Texture Entities        ../assets/Textures/froggerAtlas.png
 
@@ -41,7 +41,8 @@ Animation       left            Entities    8        no
 Animation       right           Entities    8        no
 Animation       die             Entities    8        no
 
-Animation       2turtles        Entities    1        yes
+Animation       slime		Entities    7        yes
+Animation       2turtles	Entities    7        yes
 Animation       3turtles        Entities    1        yes
 Animation       tree1           Entities    1        no
 Animation       tree2           Entities    1        no

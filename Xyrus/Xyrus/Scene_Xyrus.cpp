@@ -22,7 +22,15 @@ namespace {
 Scene_Xyrus::Scene_Xyrus(GameEngine* gameEngine, const std::string& levelPath)
 	: Scene(gameEngine)
 {
-	
+	_game->_window.setSize(sf::Vector2u(600, 600));
+	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+
+
+	int x = (desktop.width - _game->_window.getSize().x) / 2;
+	int y = (desktop.height - _game->_window.getSize().y) / 2;
+
+
+	_game->_window.setPosition(sf::Vector2i(x, y));
 	init(levelPath);
 }
 
@@ -30,7 +38,7 @@ void Scene_Xyrus::init(const std::string& levelPath) {
 	loadLevel(levelPath);
 	registerActions();
 
-	sf::Vector2f spawnPos{ _game->windowSize().x / 2.f, _game->windowSize().y / 2.f };
+	sf::Vector2f spawnPos{ static_cast<float>(_game->windowSize().x) / 2.f, static_cast<float>(_game->windowSize().y) / 2.f };
 
 	spawnPlayer(spawnPos);
 
@@ -42,7 +50,6 @@ void Scene_Xyrus::init(const std::string& levelPath) {
 
 void Scene_Xyrus::update(sf::Time dt)
 {
-	
 	sUpdate(dt);
 }
 
@@ -50,7 +57,6 @@ void Scene_Xyrus::update(sf::Time dt)
 
 void Scene_Xyrus::sRender()
 {
-
 	_game->window().clear();
 
 	for (auto& e : _entityManager.getEntities()) {
@@ -78,10 +84,18 @@ void Scene_Xyrus::sDoAction(const Command& command)
 		else if (command.name() == "RIGHT") { _player->getComponent<CInput>().dir |= CInput::dirs::RIGHT; }
 		else if (command.name() == "UP") { _player->getComponent<CInput>().dir |= CInput::dirs::UP; }
 		else if (command.name() == "DOWN") { _player->getComponent<CInput>().dir |= CInput::dirs::DOWN; }
+		else if (command.name() == "TELEPORT") { sTeleport(); }
 	}
 	// on Key Release
 	else if (command.type() == "END") {
 		_player->getComponent<CInput>().dir = 0;
+	}
+	else if (command.type() == "CLICK") {
+		if (command.name() == "LEFTCLICK") {
+			std::cout << "left" << command._mPos.x << " Y " << command._mPos.y << "\n";
+			sf::Vector2f floatVector(static_cast<float>(command._mPos.x), static_cast<float>(command._mPos.y));
+			spawnSlime(floatVector);
+		}
 	}
 }
 
@@ -107,8 +121,13 @@ void Scene_Xyrus::registerActions()
 	registerAction(sf::Keyboard::Up, "UP");
 	registerAction(sf::Keyboard::S, "DOWN");
 	registerAction(sf::Keyboard::Down, "DOWN");
+	registerAction(sf::Keyboard::R, "TELEPORT");
+
+	registerAction(sf::Mouse::Left + 1000, "LEFTCLICK");
 
 }
+
+
 
 void Scene_Xyrus::spawnPlayer(sf::Vector2f pos)
 {
@@ -130,28 +149,33 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 	auto& pos = _player->getComponent<CTransform>().pos;
 
 	if (_player->getComponent<CInput>().dir == 1) {
-		pv.y -= 40.f;
+		pv.y -= 30.f;
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("up"));
 		_player->getComponent<CInput>().dir = 0;
 		SoundPlayer::getInstance().play("hop", pos);
+		std::cout << "Player position : " << pos.x << " and " << pos.y << "\n";
+
 	}
 	if (_player->getComponent<CInput>().dir == 2) {
-		pv.y += 40.f;
+		pv.y += 30.f;
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("down"));
 		_player->getComponent<CInput>().dir = 0;
 		SoundPlayer::getInstance().play("hop", pos);
+		std::cout << "Player position : " << pos.x << " and " << pos.y << "\n";
 	}
 	if (_player->getComponent<CInput>().dir == 4) {
-		pv.x -= 40.f;
+		pv.x -= 30.f;
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("left"));
 		_player->getComponent<CInput>().dir = 0;
 		SoundPlayer::getInstance().play("hop", pos);
+		std::cout << "Player position : " << pos.x << " and " << pos.y << "\n";
 	}
 	if (_player->getComponent<CInput>().dir == 8) {
-		pv.x += 40.f;
+		pv.x += 30.f;
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("right"));
 		_player->getComponent<CInput>().dir = 0;
 		SoundPlayer::getInstance().play("hop", pos);
+		std::cout << "Player position : " << pos.x << " and " << pos.y << "\n";
 	}
 
 
@@ -184,11 +208,124 @@ void Scene_Xyrus::adjustPlayerPosition()
 	}
 }
 
-
-
-void Scene_Xyrus::sSpawnMovingEntities()
+void Scene_Xyrus::checkPlayerWBCCollision()
 {
-	
+	auto& pos = _player->getComponent<CTransform>().pos;
+	for (auto e : _entityManager.getEntities("Enemy")) {
+		auto eGB = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
+
+		if (eGB.contains(pos) && _player->getComponent<CAnimation>().animation.getName() != "die") {
+			/*_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
+			SoundPlayer::getInstance().play("death", pos);
+			_lives--;*/
+			_player->destroy();
+			onEnd();
+		}
+	}
+
+
+}
+
+void Scene_Xyrus::spawnWBC()
+{
+	auto view = _game->_window.getView();
+	sf::FloatRect getViewBounds(
+		view.getCenter().x - view.getSize().x / 2.f,
+		view.getCenter().y - view.getSize().y / 2.f,
+		view.getSize().x,
+		view.getSize().y
+	);
+
+	auto bounds = getViewBounds;
+
+	std::uniform_real_distribution<float>   d_width(_enemyConfig.CR, bounds.width - _enemyConfig.CR);
+	std::uniform_real_distribution<float>   d_height(_enemyConfig.CR, bounds.height - _enemyConfig.CR);
+	std::uniform_real_distribution<float>   d_speed(_enemyConfig.SMIN, _enemyConfig.SMAX);
+	std::uniform_real_distribution<float>   d_dir(-1, 1);
+
+	sf::Vector2f  pos(d_width(rng), d_height(rng));
+	sf::Vector2f  vel = sf::Vector2f(d_dir(rng), d_dir(rng));
+	vel = normalize(vel);
+
+	vel = d_speed(rng) * vel;
+
+	auto enemy = _entityManager.addEntity("Enemy");
+	enemy->addComponent<CTransform>(pos, vel);
+	auto bb = enemy->addComponent<CAnimation>(Assets::getInstance().getAnimation("WBC")).animation.getBB();
+	enemy->addComponent<CBoundingBox>(bb);
+}
+
+void Scene_Xyrus::sKeepWBCInBounds()
+{
+	for (auto e : _entityManager.getEntities("Enemy")) {
+		if (e->hasComponent<CTransform>()) {
+			auto& pos = e->getComponent<CTransform>().pos;
+			auto& vel = e->getComponent<CTransform>().vel;
+			auto width = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width;
+			auto height = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().height;
+
+			if ((pos.x < width / 2) || (pos.x > _game->windowSize().x - width / 2))
+			{
+
+				vel.x *= -1;
+
+			}
+
+			if ((pos.y < height / 2) || (pos.y > _game->windowSize().y - height / 2))
+			{
+
+				vel.y *= -1;
+
+			}
+		}
+	}
+}
+
+
+
+
+void Scene_Xyrus::spawnSlime(sf::Vector2f mPos)
+{
+	if (_entityManager.getEntities("Slime").size() < 1) {
+		auto slime = _entityManager.addEntity("Slime");
+		sf::Vector2f  pos = _player->getComponent<CTransform>().pos;
+		sf::Vector2f  vel = _bulletConfig.S * uVecBearing(bearing(mPos - pos));
+
+		std::cout << _entityManager.getEntities("slime").size() << "\n";
+		slime->addComponent<CTransform>(pos, vel);
+		auto bb = slime->addComponent<CAnimation>(Assets::getInstance().getAnimation("slime")).animation.getBB();
+		slime->addComponent<CBoundingBox>(bb);
+		slime->getComponent<CTransform>().angle = bearing(vel) + 90;
+		slime->addComponent<CAnimation>(Assets::getInstance().getAnimation("slime")).animation.getSprite().setRotation(slime->getComponent<CTransform>().angle = bearing(vel) + 90);
+	}
+
+}
+
+void Scene_Xyrus::sTeleport()
+{
+	if (_entityManager.getEntities("Slime").size() == 1) {
+		for (auto& e : _entityManager.getEntities("Slime")) {
+			auto& tfm = e->getComponent<CTransform>();
+			_player->getComponent<CTransform>().pos = tfm.pos;
+			e->destroy();
+		}
+	}
+}
+
+void Scene_Xyrus::sSpawnWBC(sf::Time dt)
+{
+	static bool firstSpawn = true;
+	static sf::Time countDownTimer{ sf::Time::Zero };
+
+	if (firstSpawn || countDownTimer <= sf::Time::Zero) {
+		if (_entityManager.getEntities("Enemy").size() < 7)
+			spawnWBC();
+
+		firstSpawn = false;
+		countDownTimer = sf::seconds(5.f);
+	}
+
+	countDownTimer -= dt;
 }
 
 void Scene_Xyrus::loadLevel(const std::string& path)
@@ -210,11 +347,38 @@ void Scene_Xyrus::loadLevel(const std::string& path)
 			auto e = _entityManager.addEntity("bkg");
 
 			auto& sprite = e->addComponent<CSprite>(Assets::getInstance().getTexture(name)).sprite;
+			std::cout << "name " << name << "\n";
 			sprite.setOrigin(0.f, 0.f);
 			sprite.setPosition(pos);
+
 		}
 		else if (token == "World") {
 			config >> _worldBounds.width >> _worldBounds.height;
+
+		}
+		else if (token == "Enemy") {
+			auto& ecf = _enemyConfig;
+			ecf.CR = 15.f;
+			ecf.SMIN = 150.f;
+			ecf.SMAX = 500.f;
+
+			config >> ecf.CR >> ecf.SMIN >> ecf.SMAX;
+		}
+
+		else if (token == "Bullet") {
+			auto& bcf = _bulletConfig;
+			{ int  FR, FG, FB, OR, OG, OB, OT, V, L; float SR, CR, S; };
+
+			bcf.FR = 0, bcf.FG = 0, bcf.FB = 255;
+			bcf.OR = 0, bcf.OG = 0, bcf.OB = 0;
+			bcf.OT = 2, bcf.V = 0, bcf.L = 5;
+			bcf.SR = 15.f, bcf.CR = 15.f, bcf.S = 500.f;
+
+			config >> bcf.SR >> bcf.CR >> bcf.S
+				>> bcf.FR >> bcf.FG >> bcf.FB
+				>> bcf.OR >> bcf.OG >> bcf.OB
+				>> bcf.OT >> bcf.V >> bcf.L;
+
 		}
 		config >> token;
 	}
@@ -228,19 +392,67 @@ void Scene_Xyrus::sMovement(sf::Time dt)
 
 	for (auto& e : _entityManager.getEntities()) {
 		auto& tfm = e->getComponent<CTransform>();
-		/*tfm.prevPos = tfm.pos;*/
 		tfm.pos += tfm.vel * dt.asSeconds();
 		tfm.angle += tfm.angVel * dt.asSeconds();
+
 	}
 
 }
 
 void Scene_Xyrus::sCollisions()
 {
-
+	checkWBCWBCCollision();
+	checkPlayerWBCCollision();
 }
 
+void Scene_Xyrus::checkWBCWBCCollision()
+{
+	for (auto e : _entityManager.getEntities("Enemy")) {
+		auto& velE = e->getComponent<CTransform>().vel;
+		auto& posE = e->getComponent<CTransform>().pos;
 
+		for (auto nE : _entityManager.getEntities("Enemy")) {
+			if (e == nE) {
+				continue;
+			}
+
+			auto& velNE = nE->getComponent<CTransform>().vel;
+			auto& posNE = nE->getComponent<CTransform>().pos;
+
+
+			if (dist(posE, posNE) < e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width / 2.0f) {
+
+				sf::Vector2f collisionNormal = normalize(posE - posNE);
+
+				sf::Vector2f relativeVelocity = velE - velNE;
+
+				float velocityAlongNormal = relativeVelocity.x * collisionNormal.x + relativeVelocity.y * collisionNormal.y;
+
+				if (velocityAlongNormal > 0) {
+					continue;
+				}
+
+				sf::Vector2f impulse = collisionNormal * (-1.0f * velocityAlongNormal);
+				velE += impulse;
+				velNE -= impulse;
+
+			}
+		}
+	}
+}
+
+void Scene_Xyrus::checkSlimeOutOfBounce()
+{
+	for (auto slime : _entityManager.getEntities()) {
+		if (slime->getTag() == "Slime") {
+			auto pos = slime->getComponent<CTransform>().pos;
+			auto bb = slime->getComponent<CAnimation>().animation.getBB();
+			if (pos.x + bb.x < 0 || pos.x - bb.x > _game->windowSize().x || pos.y + bb.y < 0 || pos.y - bb.y > _game->windowSize().y) {
+				slime->destroy();
+			}
+		}
+	}
+}
 
 
 
@@ -252,10 +464,13 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	_entityManager.update();
 
 
-	sAnimation(dt);
+	sSpawnWBC(dt);
 
+	sAnimation(dt);
+	sKeepWBCInBounds();
 
 	sMovement(dt);
+	checkSlimeOutOfBounce();
 	sCollisions();
 	adjustPlayerPosition();
 
@@ -362,23 +577,7 @@ void Scene_Xyrus::getScore() {
 	}
 }
 
-void Scene_Xyrus::drawGameOver() {
-
-	std::string str = "GAME OVER";
-	sf::Text text = sf::Text(str, Assets::getInstance().getFont("Arial"), 60);
-	centerOrigin(text);
-	text.setPosition(240.f, 300.f);
-	_game->window().draw(text);
-
-	std::string strEsc = "Press ESC";
-	sf::Text textEsc = sf::Text(strEsc, Assets::getInstance().getFont("Arial"), 40);
-	centerOrigin(textEsc);
-	textEsc.setPosition(240.f, 340.f);
-	_game->window().draw(textEsc);
-
-
-
-}
+void Scene_Xyrus::drawGameOver() {}
 
 void Scene_Xyrus::drawTimer()
 {
@@ -389,53 +588,10 @@ void Scene_Xyrus::drawTimer()
 	_game->window().draw(text);
 }
 
-void Scene_Xyrus::drawWin() {
-
-	std::string str = "YOU WIN";
-	sf::Text text = sf::Text(str, Assets::getInstance().getFont("Arial"), 60);
-	centerOrigin(text);
-	text.setPosition(240.f, 300.f);
-	_game->window().draw(text);
-
-	std::string strEsc = "Press ESC";
-	sf::Text textEsc = sf::Text(strEsc, Assets::getInstance().getFont("Arial"), 40);
-	centerOrigin(textEsc);
-	textEsc.setPosition(240.f, 340.f);
-	_game->window().draw(textEsc);
-}
+void Scene_Xyrus::drawWin() {}
 
 
-void Scene_Xyrus::drawLife() {
+void Scene_Xyrus::drawLife() {}
 
-	for (auto e : _entityManager.getEntities("life")) {
-		auto& anim = e->getComponent<CAnimation>().animation;
-		auto& tfm = e->getComponent<CTransform>();
-		auto originalPos = tfm.pos;
-
-		if (_lives == 0) {
-			e->destroy();
-			return;
-		}
-
-		for (int i = 0; i < _lives; ++i) {
-			sf::Vector2f newPos = originalPos;
-			newPos.x += i * 20.f;
-			anim.getSprite().setPosition(newPos);
-			_game->window().draw(anim.getSprite());
-		}
-	}
-
-}
-
-void Scene_Xyrus::spawnLife() {
-
-	sf::Vector2f pos{ 20.f, 50.f };
-
-	auto life = _entityManager.addEntity("life");
-	life->addComponent<CTransform>(pos, sf::Vector2f(0.f, 0.f));
-
-	auto sprite = life->addComponent<CAnimation>(Assets::getInstance()
-		.getAnimation("lives")).animation.getSprite();
-
-}
+void Scene_Xyrus::spawnLife() {}
 
