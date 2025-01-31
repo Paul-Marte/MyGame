@@ -17,8 +17,8 @@ Texture Title           ../assets/Textures/FroggerTitle.png
 Texture Entities        ../assets/Textures/froggerAtlas.png
 
 # Sprites
-Sprite Background       Background   0 0  480 600
-Sprite Title            Title 0 0 480 600
+Sprite Background       Background   0 0  600 600
+Sprite Title            Title 0 0 600 600
 
 #
 # SOUNDS

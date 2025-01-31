@@ -37,7 +37,7 @@ Scene_Xyrus::Scene_Xyrus(GameEngine* gameEngine, const std::string& levelPath)
 void Scene_Xyrus::init(const std::string& levelPath) {
 	loadLevel(levelPath);
 	registerActions();
-
+	
 	sf::Vector2f spawnPos{ static_cast<float>(_game->windowSize().x) / 2.f, static_cast<float>(_game->windowSize().y) / 2.f };
 
 	spawnPlayer(spawnPos);
@@ -58,8 +58,16 @@ void Scene_Xyrus::update(sf::Time dt)
 void Scene_Xyrus::sRender()
 {
 	_game->window().clear();
+	for (auto& e : _entityManager.getEntities("BKG")) {
+		_game->window().draw(e->getComponent<CSprite>().sprite);
+	}
+
+
 
 	for (auto& e : _entityManager.getEntities()) {
+		if (e->getTag() == "BKG")
+			continue;
+
 		auto& anim = e->getComponent<CAnimation>().animation;
 		auto& tfm = e->getComponent<CTransform>();
 		anim.getSprite().setPosition(tfm.pos);
@@ -344,12 +352,23 @@ void Scene_Xyrus::loadLevel(const std::string& path)
 			std::string name;
 			sf::Vector2f pos;
 			config >> name >> pos.x >> pos.y;
-			auto e = _entityManager.addEntity("bkg");
+			std::cout << "name " << name << "\n";
+
+			/*auto e = _entityManager.addEntity("bkg");
 
 			auto& sprite = e->addComponent<CSprite>(Assets::getInstance().getTexture(name)).sprite;
-			std::cout << "name " << name << "\n";
+			
 			sprite.setOrigin(0.f, 0.f);
-			sprite.setPosition(pos);
+			sprite.setPosition(pos);*/
+
+
+
+			auto e = _entityManager.addEntity("BKG");
+			e->addComponent<CTransform>(pos);
+			auto& sprite = e->addComponent<CSprite>(Assets::getInstance().getTexture(name)).sprite;
+					
+			sprite.setOrigin(0.f, 0.f);
+			sprite.setPosition(0.f, 0.f);
 
 		}
 		else if (token == "World") {
