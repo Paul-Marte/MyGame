@@ -22,15 +22,6 @@ namespace {
 Scene_Xyrus::Scene_Xyrus(GameEngine* gameEngine, const std::string& levelPath)
 	: Scene(gameEngine)
 {
-	_game->_window.setSize(sf::Vector2u(600, 600));
-	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-
-
-	int x = (desktop.width - _game->_window.getSize().x) / 2;
-	int y = (desktop.height - _game->_window.getSize().y) / 2;
-
-
-	_game->_window.setPosition(sf::Vector2i(x, y));
 	init(levelPath);
 }
 
@@ -72,6 +63,18 @@ void Scene_Xyrus::sRender()
 		auto& tfm = e->getComponent<CTransform>();
 		anim.getSprite().setPosition(tfm.pos);
 		_game->window().draw(anim.getSprite());
+
+		if (_drawAABB && e->hasComponent<CBoundingBox>()) {
+			auto box = e->getComponent<CBoundingBox>();
+			sf::RectangleShape rect;
+			rect.setSize(sf::Vector2f{ box.size.x, box.size.y });
+			centerOrigin(rect);
+			rect.setPosition(e->getComponent<CTransform>().pos);
+			rect.setFillColor(sf::Color(0, 0, 0, 0));
+			rect.setOutlineColor(sf::Color{ 0, 255, 0 });
+			rect.setOutlineThickness(2.f);
+			_game->window().draw(rect);
+		}
 	}
 
 }
