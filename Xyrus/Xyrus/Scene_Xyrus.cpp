@@ -166,7 +166,7 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyup"));
 		_player->getComponent<CInput>().dir = 0;
 		SoundPlayer::getInstance().play("hop", pos);
-		std::cout << "Player position : " << pos.x << " and " << pos.y << "\n";
+	
 
 	}
 	if (_player->getComponent<CInput>().dir == 2) {
@@ -174,25 +174,34 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xydown"));
 		_player->getComponent<CInput>().dir = 0;
 		SoundPlayer::getInstance().play("hop", pos);
-		std::cout << "Player position : " << pos.x << " and " << pos.y << "\n";
+	
 	}
 	if (_player->getComponent<CInput>().dir == 4) {
 		pv.x -= 30.f;
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyleft"));
 		_player->getComponent<CInput>().dir = 0;
 		SoundPlayer::getInstance().play("hop", pos);
-		std::cout << "Player position : " << pos.x << " and " << pos.y << "\n";
+		
 	}
 	if (_player->getComponent<CInput>().dir == 8) {
 		pv.x += 30.f;
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyright"));
 		_player->getComponent<CInput>().dir = 0;
 		SoundPlayer::getInstance().play("hop", pos);
-		std::cout << "Player position : " << pos.x << " and " << pos.y << "\n";
+		
 	}
 
 
 	if (pv != sf::Vector2f(0, 0)) {
+		auto tempPos = pos + pv;
+		for (auto e : _entityManager.getEntities("Area")) {
+			
+			auto ePos = e->getComponent<CTransform>().pos;
+			if (tempPos == ePos){
+				if(e->getComponent<CState>().state == "infected")
+				return;
+			}
+		}
 		pos += pv;
 	}
 
