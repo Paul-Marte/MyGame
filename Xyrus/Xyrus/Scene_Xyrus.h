@@ -69,6 +69,7 @@ class Scene_Xyrus : public Scene {
 	void                    spawnSlime(sf::Vector2f mPos);
 	void                    spawnArea();
 	void                    sTeleport();
+	void                    sInfect();
 	void	                registerActions();
 	void                    checkIfDead(sPtrEntt e);
 	void					sKeepWBCInBounds();

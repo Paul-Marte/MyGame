@@ -95,6 +95,7 @@ void Scene_Xyrus::sDoAction(const Command& command)
 		else if (command.name() == "RIGHT") { _player->getComponent<CInput>().dir |= CInput::dirs::RIGHT; }
 		else if (command.name() == "UP") { _player->getComponent<CInput>().dir |= CInput::dirs::UP; }
 		else if (command.name() == "DOWN") { _player->getComponent<CInput>().dir |= CInput::dirs::DOWN; }
+		else if (command.name() == "INFECT") { sInfect(); }
 		else if (command.name() == "TELEPORT") { sTeleport(); }
 	}
 	// on Key Release
@@ -133,6 +134,7 @@ void Scene_Xyrus::registerActions()
 	registerAction(sf::Keyboard::S, "DOWN");
 	registerAction(sf::Keyboard::Down, "DOWN");
 	registerAction(sf::Keyboard::R, "TELEPORT");
+	registerAction(sf::Keyboard::Space, "INFECT");
 
 	registerAction(sf::Mouse::Left + 1000, "LEFTCLICK");
 
@@ -144,7 +146,7 @@ void Scene_Xyrus::spawnPlayer(sf::Vector2f pos)
 {
 	_player = _entityManager.addEntity("player");
 	_player->addComponent<CTransform>(pos);
-	auto bb = _player->addComponent<CAnimation>(Assets::getInstance().getAnimation("up")).animation.getBB();
+	auto bb = _player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyup")).animation.getBB();
 	_player->addComponent<CBoundingBox>(bb);
 	auto& sprite = _player->getComponent<CAnimation>().animation.getSprite();
 	centerOrigin(sprite);
@@ -233,8 +235,6 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 			onEnd();
 		}
 	}
-
-
 }
 
 void Scene_Xyrus::spawnWBC()
@@ -326,7 +326,7 @@ void Scene_Xyrus::spawnArea()
 			auto e = _entityManager.addEntity("Area");
 			sf::Vector2f  pos{ static_cast<float>(r*blW+15.f), static_cast<float>(c*blH+15.f) };
 			e->addComponent<CTransform>(pos);
-			//e->addComponent<CState>("none");
+			e->addComponent<CState>().state = "none";
 			auto bb = e->addComponent<CAnimation>(Assets::getInstance().getAnimation("empty")).animation.getBB();
 			e->addComponent<CBoundingBox>(bb);
 					
@@ -394,6 +394,19 @@ void Scene_Xyrus::sTeleport()
 
 }
 
+void Scene_Xyrus::sInfect()
+{
+	auto& pos = _player->getComponent<CTransform>().pos;
+	for (auto e : _entityManager.getEntities("Area")) {
+		auto eGB = e->getComponent<CTransform>().pos;
+
+		if (eGB == pos) {
+			e->getComponent<CState>().state = "infected";
+			
+		}
+	}
+}
+
 void Scene_Xyrus::sSpawnWBC(sf::Time dt)
 {
 	static bool firstSpawn = true;
@@ -429,15 +442,6 @@ void Scene_Xyrus::loadLevel(const std::string& path)
 			sf::Vector2f pos;
 			config >> name >> pos.x >> pos.y;
 			std::cout << "name " << name << "\n";
-
-			/*auto e = _entityManager.addEntity("bkg");
-
-			auto& sprite = e->addComponent<CSprite>(Assets::getInstance().getTexture(name)).sprite;
-			
-			sprite.setOrigin(0.f, 0.f);
-			sprite.setPosition(pos);*/
-
-
 
 			auto e = _entityManager.addEntity("BKG");
 			e->addComponent<CTransform>(pos);
@@ -497,7 +501,7 @@ void Scene_Xyrus::sMovement(sf::Time dt)
 void Scene_Xyrus::sCollisions()
 {
 	checkWBCWBCCollision();
-	//checkPlayerWBCCollision();
+	checkPlayerWBCCollision();
 }
 
 void Scene_Xyrus::checkWBCWBCCollision()
