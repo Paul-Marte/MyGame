@@ -407,6 +407,20 @@ void Scene_Xyrus::sInfect()
 	}
 }
 
+void Scene_Xyrus::sInfectUpdate()
+{
+	
+	for (auto e : _entityManager.getEntities("Area")) {
+		
+
+		if (e->getComponent<CState>().state == "infected") {
+			if(_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
+			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("infection"));
+			
+		}
+	}
+}
+
 void Scene_Xyrus::sSpawnWBC(sf::Time dt)
 {
 	static bool firstSpawn = true;
@@ -568,6 +582,7 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 
 	sAnimation(dt);
 	sKeepWBCInBounds();
+	sInfectUpdate();
 
 	sMovement(dt);
 	checkSlimeOutOfBounce();

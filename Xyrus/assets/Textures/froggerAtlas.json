@@ -104,7 +104,7 @@
 	"sourceSize": {"w":40,"h":40}
 },
 {
-	"filename": "inFection.png",
+	"filename": "infection.png",
 	"frame": {"x":0,"y":260,"w":30,"h":30},
 	"rotated": false,
 	"trimmed": true,

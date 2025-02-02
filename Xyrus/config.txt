@@ -42,7 +42,8 @@ Animation       xydown          Entities    30       no
 Animation       xyleft          Entities    30       no
 Animation       xyright         Entities    30       no
 Animation       slime		Entities    10       yes
-Animation       empty         	Entities    1        no
+Animation       empty        	Entities    1        no
+Animation       infection      	Entities    1        no
 
 Animation       up              Entities    8        no
 Animation       down            Entities    8        no
