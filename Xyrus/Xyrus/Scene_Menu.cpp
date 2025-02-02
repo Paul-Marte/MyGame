@@ -11,13 +11,13 @@ void Scene_Menu::onEnd()
 Scene_Menu::Scene_Menu(GameEngine* gameEngine)
 	: Scene(gameEngine)
 {
-	_game->_window.setSize(sf::Vector2u(600, 600));
+	_game->_window.setSize(sf::Vector2u(630, 630));
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 
 
 	int x = (desktop.width - _game->_window.getSize().x) / 2;
 	int y = (desktop.height - _game->_window.getSize().y) / 2;
-	std::cout << x << "   " << y;
+
 
 	_game->_window.setPosition(sf::Vector2i(x, y));
 	init();

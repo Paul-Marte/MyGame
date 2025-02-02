@@ -67,6 +67,7 @@ class Scene_Xyrus : public Scene {
 	void                    spawnWBC();
 	void                    checkPlayerWBCCollision();
 	void                    spawnSlime(sf::Vector2f mPos);
+	void                    spawnArea();
 	void                    sTeleport();
 	void	                registerActions();
 	void                    checkIfDead(sPtrEntt e);
