@@ -1,8 +1,8 @@
 # Level 1
 
-World 512 512
+World 630 630
 Bkg Background 0 0
 
-Enemy 32  200  500
+Enemy 32  100  100
 
 Bullet 10 10  150  255 255 255   255 255 255   2    20  1

@@ -155,8 +155,8 @@ void Scene_Xyrus::spawnPlayer(sf::Vector2f pos)
 
 void Scene_Xyrus::playerMovement(sf::Time dt)
 {
-	if (_player->getComponent<CAnimation>().animation.getName() == "die" || _isFinish || _lives < 1)
-		return;
+	//if (_player->getComponent<CAnimation>().animation.getName() == "die" || _isFinish || _lives < 1)
+	//	return;
 
 	sf::Vector2f pv;
 	auto& pos = _player->getComponent<CTransform>().pos;
@@ -365,8 +365,6 @@ void Scene_Xyrus::sTeleport()
 		}
 	}*/
 
-
-	if (_entityManager.getEntities("Slime").size() == 1) {
 		for (auto& s : _entityManager.getEntities("Slime")) {
 			auto& pos = s->getComponent<CTransform>().pos;
 			auto sBB = s->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
@@ -379,6 +377,9 @@ void Scene_Xyrus::sTeleport()
 				auto& eGBpos = e->getComponent<CTransform>().pos;
 
 				if (eGB.intersects(sBB)) {
+					if (e->getComponent<CState>().state == "infected")
+						return;
+
 					sf::FloatRect interSec;
 					eGB.intersects(sBB, interSec);
 
@@ -399,8 +400,6 @@ void Scene_Xyrus::sTeleport()
 			
 			}
 		}
-	}
-
 }
 
 void Scene_Xyrus::sInfect()
