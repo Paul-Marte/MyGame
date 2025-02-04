@@ -199,10 +199,12 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 			auto ePos = e->getComponent<CTransform>().pos;
 			if (tempPos == ePos){
 				if(e->getComponent<CState>().state == "infected")
+					
 				return;
 			}
 		}
 		pos += pv;
+		sInfectUpdate();
 	}
 
 }
@@ -234,15 +236,31 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 {
 	auto& pos = _player->getComponent<CTransform>().pos;
 	for (auto e : _entityManager.getEntities("WBC")) {
-		auto eGB = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
 
-		if (eGB.contains(pos) && _player->getComponent<CAnimation>().animation.getName() != "die") {
-			/*_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
-			SoundPlayer::getInstance().play("death", pos);
-			_lives--;*/
+		auto overlap = Physics::getOverlap(_player, e);
+		if (overlap.x > 10 && overlap.y > 10) {
+			_isPaused = true;
 			_player->destroy();
-			onEnd();
 		}
+		//auto ePos = e->getComponent<CTransform>().pos;
+		//auto eBB = e->addComponent<CAnimation>(Assets::getInstance().getAnimation("WBC")).animation.getBB();
+
+		//sf::RectangleShape rectangle;
+		//rectangle.setSize(eBB);
+		//rectangle.setPosition(ePos);
+
+		//auto eGB = rectangle.getGlobalBounds();
+
+	
+		//if (eGB.contains(pos) && _player->getComponent<CAnimation>().animation.getName() != "die") {
+		//	/*_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
+		//	SoundPlayer::getInstance().play("death", pos);
+		//	_lives--;*/
+		//	
+	
+		
+		//
+		//}
 	}
 }
 
@@ -310,8 +328,6 @@ void Scene_Xyrus::spawnSlime(sf::Vector2f mPos)
 		auto slime = _entityManager.addEntity("Slime");
 		sf::Vector2f  pos = _player->getComponent<CTransform>().pos;
 		sf::Vector2f  vel = _bulletConfig.S * uVecBearing(bearing(mPos - pos));
-
-		std::cout << _entityManager.getEntities("slime").size() << "\n";
 		slime->addComponent<CTransform>(pos, vel);
 		auto bb = slime->addComponent<CAnimation>(Assets::getInstance().getAnimation("slime")).animation.getBB();
 		slime->addComponent<CBoundingBox>(bb);
@@ -347,7 +363,7 @@ void Scene_Xyrus::spawnArea()
 void Scene_Xyrus::sTeleport()
 {
 
-	/*if (_entityManager.getEntities("Slime").size() == 1) {
+	if (_entityManager.getEntities("Slime").size() == 1) {
 		for (auto& s: _entityManager.getEntities("Slime")) {
 			auto& pos = s->getComponent<CTransform>().pos;
 
@@ -355,51 +371,20 @@ void Scene_Xyrus::sTeleport()
 				auto eGB = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
 				auto& eGBpos = e->getComponent<CTransform>().pos;
 				if (eGB.contains(pos)) {
-					_player->getComponent<CTransform>().pos = eGBpos;
 					
+					if (e->getComponent<CState>().state == "infected")
+						return;
+
+					_player->getComponent<CTransform>().pos = eGBpos;
+					sInfectUpdate();
 					s->destroy();
 					continue;
 				}
 			}
 			continue;
 		}
-	}*/
-
-		for (auto& s : _entityManager.getEntities("Slime")) {
-			auto& pos = s->getComponent<CTransform>().pos;
-			auto sBB = s->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
-
-			float maxInterSecArea = 0.0f;
-			sf::Vector2f newPos;
-
-			for (auto e : _entityManager.getEntities("Area")) {
-				auto eGB = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
-				auto& eGBpos = e->getComponent<CTransform>().pos;
-
-				if (eGB.intersects(sBB)) {
-					if (e->getComponent<CState>().state == "infected")
-						return;
-
-					sf::FloatRect interSec;
-					eGB.intersects(sBB, interSec);
-
-					float interSecArea = interSec.width * interSec.height;
-	
-					if (interSecArea > maxInterSecArea) {
-						maxInterSecArea = interSecArea;
-						newPos = eGBpos;
-					}
-				}
-			}
-
-			if (maxInterSecArea > 0) {
-				
-				_player->getComponent<CTransform>().pos = newPos;
-				_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyup"));
-				s->destroy();
-			
-			}
-		}
+	}
+		
 }
 
 void Scene_Xyrus::sInfect()
@@ -423,8 +408,7 @@ void Scene_Xyrus::sInfectUpdate()
 
 		if (e->getComponent<CState>().state == "infected") {
 			if(_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
-			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("infection"));
-			
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf"));
 		}
 	}
 }
@@ -590,7 +574,6 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 
 	sAnimation(dt);
 	sKeepWBCInBounds();
-	sInfectUpdate();
 
 	sMovement(dt);
 	checkSlimeOutOfBounce();

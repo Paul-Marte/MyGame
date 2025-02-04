@@ -44,6 +44,7 @@ Animation       xyright         Entities    30       no
 Animation       slime		Entities    10       yes
 Animation       empty        	Entities    1        no
 Animation       infection      	Entities    1        no
+Animation       inf      	Entities    30        yes
 
 Animation       up              Entities    8        no
 Animation       down            Entities    8        no
@@ -52,10 +53,7 @@ Animation       right           Entities    8        no
 Animation       die             Entities    8        no
 
 
-Animation       2turtles	Entities    7        yes
-Animation       3turtles        Entities    1        yes
-Animation       tree1           Entities    1        no
-Animation       tree2           Entities    1        no
+
 
 Animation       car             Entities    1        no
 
