@@ -278,7 +278,7 @@ void Scene_Xyrus::spawnWBC()
 	auto bounds = getViewBounds;
 
 	std::uniform_real_distribution<float>   d_width(_wbcConfig.CR, bounds.width - _wbcConfig.CR);
-	std::uniform_real_distribution<float>   d_height(_wbcConfig.CR, bounds.height - _wbcConfig.CR);
+	std::uniform_real_distribution<float>   d_height((_wbcConfig.CR < 0.f) ? 60.f : _wbcConfig.CR, bounds.height - _wbcConfig.CR);
 	std::uniform_real_distribution<float>   d_speed(_wbcConfig.SMIN, _wbcConfig.SMAX);
 	std::uniform_real_distribution<float>   d_dir(-1, 1);
 
