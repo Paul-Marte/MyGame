@@ -133,6 +133,7 @@ void Scene_Xyrus::registerActions()
 	registerAction(sf::Keyboard::Up, "UP");
 	registerAction(sf::Keyboard::S, "DOWN");
 	registerAction(sf::Keyboard::Down, "DOWN");
+	registerAction(sf::Keyboard::E, "TELEPORT");
 	registerAction(sf::Keyboard::R, "TELEPORT");
 	registerAction(sf::Keyboard::Space, "INFECT");
 
@@ -204,7 +205,7 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 			}
 		}
 		pos += pv;
-		sInfectUpdate();
+	
 	}
 
 }
@@ -223,8 +224,8 @@ void Scene_Xyrus::adjustPlayerPosition()
 		player_pos.x = _game->windowSize().x - playerHalfSize.x;
 	}
 
-	if (player_pos.y < playerHalfSize.y) {
-		player_pos.y = playerHalfSize.y;
+	if (player_pos.y < playerHalfSize.y+60.f) {
+		player_pos.y = playerHalfSize.y+60.f;
 	}
 
 	if (player_pos.y > _game->windowSize().y - playerHalfSize.y) {
@@ -269,16 +270,16 @@ void Scene_Xyrus::spawnWBC()
 	auto view = _game->_window.getView();
 	sf::FloatRect getViewBounds(
 		view.getCenter().x - view.getSize().x / 2.f,
-		view.getCenter().y - view.getSize().y / 2.f,
+		view.getCenter().y - view.getSize().y / 2.f + 60.f,
 		view.getSize().x,
-		view.getSize().y
+		view.getSize().y-60.f
 	);
 
 	auto bounds = getViewBounds;
 
-	std::uniform_real_distribution<float>   d_width(_enemyConfig.CR, bounds.width - _enemyConfig.CR);
-	std::uniform_real_distribution<float>   d_height(_enemyConfig.CR, bounds.height - _enemyConfig.CR);
-	std::uniform_real_distribution<float>   d_speed(_enemyConfig.SMIN, _enemyConfig.SMAX);
+	std::uniform_real_distribution<float>   d_width(_wbcConfig.CR, bounds.width - _wbcConfig.CR);
+	std::uniform_real_distribution<float>   d_height(_wbcConfig.CR, bounds.height - _wbcConfig.CR);
+	std::uniform_real_distribution<float>   d_speed(_wbcConfig.SMIN, _wbcConfig.SMAX);
 	std::uniform_real_distribution<float>   d_dir(-1, 1);
 
 	sf::Vector2f  pos(d_width(rng), d_height(rng));
@@ -309,7 +310,7 @@ void Scene_Xyrus::sKeepWBCInBounds()
 
 			}
 
-			if ((pos.y < height / 2) || (pos.y > _game->windowSize().y - height / 2))
+			if ((pos.y < height / 2+60.f) || (pos.y > _game->windowSize().y - height / 2))
 			{
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
 				vel.y *= -1;
@@ -327,7 +328,7 @@ void Scene_Xyrus::spawnSlime(sf::Vector2f mPos)
 	if (_entityManager.getEntities("Slime").size() < 1) {
 		auto slime = _entityManager.addEntity("Slime");
 		sf::Vector2f  pos = _player->getComponent<CTransform>().pos;
-		sf::Vector2f  vel = _bulletConfig.S * uVecBearing(bearing(mPos - pos));
+		sf::Vector2f  vel = _slimeConfig.S * uVecBearing(bearing(mPos - pos));
 		slime->addComponent<CTransform>(pos, vel);
 		auto bb = slime->addComponent<CAnimation>(Assets::getInstance().getAnimation("slime")).animation.getBB();
 		slime->addComponent<CBoundingBox>(bb);
@@ -346,7 +347,7 @@ void Scene_Xyrus::spawnArea()
 
 
 	for (int r{ 0 }; r < windowHeight/ blH; r++) {
-		for (int c{ 0 }; c < windowWidth/ blW; c++) {
+		for (int c{ 2 }; c < windowWidth/ blW; c++) {
 
 			auto e = _entityManager.addEntity("Area");
 			sf::Vector2f  pos{ static_cast<float>(r*blW+15.f), static_cast<float>(c*blH+15.f) };
@@ -376,7 +377,7 @@ void Scene_Xyrus::sTeleport()
 						return;
 
 					_player->getComponent<CTransform>().pos = eGBpos;
-					sInfectUpdate();
+				/*	sInfectUpdate();*/
 					s->destroy();
 					continue;
 				}
@@ -408,7 +409,7 @@ void Scene_Xyrus::sInfectUpdate()
 
 		if (e->getComponent<CState>().state == "infected") {
 			if(_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
-				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf"));
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf2"));
 		}
 	}
 }
@@ -461,8 +462,8 @@ void Scene_Xyrus::loadLevel(const std::string& path)
 			config >> _worldBounds.width >> _worldBounds.height;
 
 		}
-		else if (token == "Enemy") {
-			auto& ecf = _enemyConfig;
+		else if (token == "WBC") {
+			auto& ecf = _wbcConfig;
 			ecf.CR = 15.f;
 			ecf.SMIN = 150.f;
 			ecf.SMAX = 500.f;
@@ -470,19 +471,13 @@ void Scene_Xyrus::loadLevel(const std::string& path)
 			config >> ecf.CR >> ecf.SMIN >> ecf.SMAX;
 		}
 
-		else if (token == "Bullet") {
-			auto& bcf = _bulletConfig;
-			{ int  FR, FG, FB, OR, OG, OB, OT, V, L; float SR, CR, S; };
+		else if (token == "SLIME") {
+			auto& bcf = _slimeConfig;
+			{ float S; };
 
-			bcf.FR = 0, bcf.FG = 0, bcf.FB = 255;
-			bcf.OR = 0, bcf.OG = 0, bcf.OB = 0;
-			bcf.OT = 2, bcf.V = 0, bcf.L = 5;
-			bcf.SR = 15.f, bcf.CR = 15.f, bcf.S = 500.f;
+			bcf.S = 500.f;
 
-			config >> bcf.SR >> bcf.CR >> bcf.S
-				>> bcf.FR >> bcf.FG >> bcf.FB
-				>> bcf.OR >> bcf.OG >> bcf.OB
-				>> bcf.OT >> bcf.V >> bcf.L;
+			config >> bcf.S;
 
 		}
 		config >> token;
@@ -569,9 +564,8 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	SoundPlayer::getInstance().removeStoppedSounds();
 	_entityManager.update();
 
-
+	auto tempPos = _player->getComponent<CTransform>().pos;
 	sSpawnWBC(dt);
-
 	sAnimation(dt);
 	sKeepWBCInBounds();
 
@@ -579,7 +573,8 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	checkSlimeOutOfBounce();
 	sCollisions();
 	adjustPlayerPosition();
-
+	if(tempPos != _player->getComponent<CTransform>().pos)
+		sInfectUpdate();
 }
 
 

@@ -29,10 +29,6 @@ JSON                    ../assets/Textures/froggerAtlas.json
 
 
 
-
-
-
-
 #
 #  Animation    Name            Texture     Speed   Repeats
 Animation       WBC        	Entities    1        no
@@ -45,6 +41,7 @@ Animation       slime		Entities    10       yes
 Animation       empty        	Entities    1        no
 Animation       infection      	Entities    1        no
 Animation       inf      	Entities    30        yes
+Animation       inf2      	Entities    20        yes
 
 Animation       up              Entities    8        no
 Animation       down            Entities    8        no

@@ -38,13 +38,13 @@ void Scene_Menu::init()
 	registerAction(sf::Keyboard::Escape, "QUIT");
 
 	_title = "XYRUS";
-	_menuStrings.push_back("PLAY");
-	_menuStrings.push_back("OPTIONS");
-	_menuStrings.push_back("ABOUT");
+	_menuStrings.push_back("Level 1");
+	_menuStrings.push_back("Level 2");
+	_menuStrings.push_back("Level 3");
 
-	//_levelPaths.push_back("../assets/level1.txt"); // TO CHANGE
-	//_levelPaths.push_back("../assets/level1.txt");  // TO CHANGE
-	//_levelPaths.push_back("../assets/level1.txt");// TO CHANGE
+	_levelPaths.push_back("../level1.txt"); 
+	_levelPaths.push_back("../level1.txt");  // TO CHANGE
+	_levelPaths.push_back("../level1.txt");// TO CHANGE
 
 	_menuText.setFont(Assets::getInstance().getFont("main"));
 
@@ -122,7 +122,7 @@ void Scene_Menu::sDoAction(const Command& action)
 		else if (action.name() == "SELECT")
 		{
 			if (_menuIndex == 0)
-				_game->changeScene("SELECT", std::make_shared<Scene_Xyrus>(_game, "../level1.txt"));
+				_game->changeScene("SELECT", std::make_shared<Scene_Xyrus>(_game, _levelPaths[_menuIndex]));
 		}
 		else if (action.name() == "QUIT")
 		{

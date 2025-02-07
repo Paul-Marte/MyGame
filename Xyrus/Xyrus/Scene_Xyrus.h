@@ -14,7 +14,7 @@
 #include <random>
 
 struct EnemyConfig { float  CR, SMIN, SMAX; };
-struct BulletConfig { int  FR, FG, FB, OR, OG, OB, OT, V, L; float SR, CR, S; };
+struct BulletConfig { float SR, CR, S; };
 
 class Scene_Xyrus : public Scene {
 
@@ -35,8 +35,8 @@ class Scene_Xyrus : public Scene {
 	float					_timer = 90.f;
 	const float				_timerThreshold = 90.f;
 
-	EnemyConfig                 _enemyConfig;
-	BulletConfig                _bulletConfig;
+	EnemyConfig                 _wbcConfig;
+	BulletConfig                _slimeConfig;
 
 
 	//systems

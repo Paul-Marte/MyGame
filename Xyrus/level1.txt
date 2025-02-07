@@ -1,8 +1,9 @@
 # Level 1
 
 World 630 630
-Bkg Background 0 0
 
-Enemy 32  150  250
+Bkg Background 0 30
 
-Bullet 10 10  150  255 255 255   255 255 255   2    20  1
+WBC 32  100  100
+
+SLIME 300  
