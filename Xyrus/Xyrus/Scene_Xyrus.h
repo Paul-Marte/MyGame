@@ -21,7 +21,7 @@ class Scene_Xyrus : public Scene {
 	sPtrEntt				_player{ nullptr };
 	sf::FloatRect           _worldBounds;
 
-	int						_lives{ 3 };
+	int						_lives{ 5 };
 	int						_score{ 0 };
 	int						_scoreTotal{ 0 };
 	int						_scoredHeights[11] = {};

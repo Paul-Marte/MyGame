@@ -48,38 +48,6 @@
 	"sourceSize": {"w":40,"h":40}
 },
 {
-	"filename": "car.png",
-	"frame": {"x":220,"y":59,"w":35,"h":29},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":2,"y":5,"w":35,"h":29},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "croc (1).png",
-	"frame": {"x":1,"y":203,"w":102,"h":40},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":102,"h":40},
-	"sourceSize": {"w":102,"h":40}
-},
-{
-	"filename": "croc (2).png",
-	"frame": {"x":130,"y":90,"w":102,"h":31},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":4,"w":102,"h":31},
-	"sourceSize": {"w":102,"h":40}
-},
-{
-	"filename": "crocIcon.png",
-	"frame": {"x":105,"y":203,"w":36,"h":40},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":2,"y":0,"w":36,"h":40},
-	"sourceSize": {"w":40,"h":40}
-},
-{
 	"filename": "die (1).png",
 	"frame": {"x":142,"y":162,"w":29,"h":38},
 	"rotated": false,
@@ -104,116 +72,12 @@
 	"sourceSize": {"w":40,"h":40}
 },
 {
-	"filename": "down (1).png",
-	"frame": {"x":234,"y":90,"w":34,"h":32},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":34,"h":32},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "down (2).png",
-	"frame": {"x":31,"y":1,"w":33,"h":23},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":8,"w":33,"h":23},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "frogIcon.png",
-	"frame": {"x":217,"y":203,"w":39,"h":40},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":0,"w":39,"h":40},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "left (1).png",
-	"frame": {"x":122,"y":124,"w":32,"h":34},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":4,"y":3,"w":32,"h":34},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "left (2).png",
-	"frame": {"x":37,"y":124,"w":23,"h":33},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":8,"y":3,"w":23,"h":33},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "lillyPad.png",
-	"frame": {"x":96,"y":90,"w":32,"h":30},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":1,"w":32,"h":30},
-	"sourceSize": {"w":32,"h":31}
-},
-{
 	"filename": "lives.png",
 	"frame": {"x":11,"y":1,"w":18,"h":21},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":18,"h":21},
 	"sourceSize": {"w":18,"h":21}
-},
-{
-	"filename": "raceCarR.png",
-	"frame": {"x":103,"y":162,"w":37,"h":37},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":1,"y":1,"w":37,"h":37},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "right (1).png",
-	"frame": {"x":156,"y":124,"w":32,"h":34},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":4,"y":3,"w":32,"h":34},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "right (2).png",
-	"frame": {"x":62,"y":124,"w":23,"h":33},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":8,"y":3,"w":23,"h":33},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "tractor.png",
-	"frame": {"x":87,"y":124,"w":33,"h":33},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":3,"w":33,"h":33},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "tree1.png",
-	"frame": {"x":1,"y":90,"w":93,"h":29},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":1,"y":5,"w":93,"h":29},
-	"sourceSize": {"w":95,"h":40}
-},
-{
-	"filename": "tree2.png",
-	"frame": {"x":30,"y":29,"w":195,"h":28},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":6,"w":195,"h":28},
-	"sourceSize": {"w":196,"h":40}
-},
-{
-	"filename": "truck.png",
-	"frame": {"x":1,"y":59,"w":61,"h":28},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":6,"w":61,"h":28},
-	"sourceSize": {"w":61,"h":40}
 },
 {
 	"filename": "WBC.png",
@@ -263,7 +127,6 @@
 	"spriteSourceSize": {"x":1,"y":0,"w":38,"h":39},
 	"sourceSize": {"w":80,"h":80}
 },
-
 {
 	"filename": "xyup (1).png",
 	"frame": {"x":0,"y":371,"w":30,"h":30},
@@ -489,22 +352,6 @@
 	"sourceSize": {"w":40,"h":40}
 },
 {
-	"filename": "up (1).png",
-	"frame": {"x":1,"y":124,"w":34,"h":32},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":34,"h":32},
-	"sourceSize": {"w":40,"h":40}
-},
-{
-	"filename": "up (2).png",
-	"frame": {"x":66,"y":1,"w":33,"h":23},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":8,"w":33,"h":23},
-	"sourceSize": {"w":40,"h":40}
-},
-{
 	"filename": "inf (1).png",
 	"frame": {"x":0,"y":181,"w":30,"h":30},
 	"rotated": false,
@@ -631,11 +478,19 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":6,"y":7,"w":27,"h":26},
 	"sourceSize": {"w":40,"h":40}
+},
+{
+	"filename": "lives.png",
+	"frame": {"x":0,"y":227,"w":25,"h":20},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":34,"h":32},
+	"sourceSize": {"w":40,"h":40}
 }],
 "meta": {
 	"app": "https://www.codeandweb.com/texturepacker",
 	"version": "1.0",
-	"image": "froggerAtlas.png",
+	"image": "xyrus.png",
 	"format": "RGBA8888",
 	"size": {"w":269,"h":269},
 	"scale": "1",

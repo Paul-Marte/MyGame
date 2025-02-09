@@ -15,7 +15,7 @@ Music gaeThemeOld         ../assets/Music/frogger.ogg
 Texture Background      ../assets/Textures/BlackRed.jpg
 Texture Menu		../assets/Textures/MenuBackground600.jpg
 Texture Title           ../assets/Textures/FroggerTitle.png
-Texture Entities        ../assets/Textures/froggerAtlas.png
+Texture Entities        ../assets/Textures/xyrus.png
 
 # Sprites
 Sprite Background       Background   0 0  630 630
@@ -30,7 +30,7 @@ Sound teleport          ../assets/Sound/game-bonus-2-294436.ogg
 Sound infect            ../assets/Sound/game-bonus-144751.ogg
 Sound blocked           ../assets/Sound/retro-game-shot-152052.ogg
 
-JSON                    ../assets/Textures/froggerAtlas.json
+JSON                    ../assets/Textures/xyrus.json
 
 
 
@@ -45,27 +45,9 @@ Animation       xyright         Entities    30       no
 Animation       slime		Entities    10       yes
 Animation       empty        	Entities    1        no
 Animation       infection      	Entities    1        no
-Animation       inf      	Entities    30        yes
-Animation       inf2      	Entities    20        yes
+Animation       inf      	Entities    30       yes
+Animation       inf2      	Entities    20       yes
 
-Animation       up              Entities    8        no
-Animation       down            Entities    8        no
-Animation       left            Entities    8        no
-Animation       right           Entities    8        no
 Animation       die             Entities    8        no
 
-
-
-
-Animation       car             Entities    1        no
-
-Animation       raceCarR        Entities    1        no
-Animation       truck           Entities    1        no
-Animation       tractor         Entities    1        no
-
-
-Animation       croc            Entities    1        yes
-Animation       crocIcon        Entities    1        no
-Animation       frogIcon        Entities    1        no
-Animation       lillyPad        Entities    1        no
 Animation       lives           Entities    1        no

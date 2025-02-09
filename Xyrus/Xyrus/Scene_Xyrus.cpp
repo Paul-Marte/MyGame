@@ -36,7 +36,7 @@ void Scene_Xyrus::init(const std::string& levelPath) {
 	sf::Vector2f spawnPos{ static_cast<float>(_game->windowSize().x) / 2.f, static_cast<float>(_game->windowSize().y) / 2.f };
 	spawnArea();
 	spawnPlayer(spawnPos);
-
+	spawnLife();
 	MusicPlayer::getInstance().play("gameTheme");
 	MusicPlayer::getInstance().setVolume(100);
 }
@@ -57,10 +57,11 @@ void Scene_Xyrus::sRender()
 	for (auto& e : _entityManager.getEntities("BKG")) {
 		_game->window().draw(e->getComponent<CSprite>().sprite);
 	}
-
+	drawLife();
 	drawBorder();
 	drawScore();
 	drawPercentage();
+
 
 
 	for (auto& e : _entityManager.getEntities()) {
@@ -281,7 +282,7 @@ void Scene_Xyrus::spawnWBC()
 	auto bounds = getViewBounds;
 
 	std::uniform_real_distribution<float>   d_width(_wbcConfig.CR, bounds.width - _wbcConfig.CR);
-	std::uniform_real_distribution<float>   d_height((_wbcConfig.CR < 61.f) ? 61.f : _wbcConfig.CR, bounds.height - _wbcConfig.CR);
+	std::uniform_real_distribution<float>   d_height((_wbcConfig.CR < 101.f) ? 101.f : _wbcConfig.CR, bounds.height - _wbcConfig.CR);
 	std::uniform_real_distribution<float>   d_speed(_wbcConfig.SMIN, _wbcConfig.SMAX);
 	std::uniform_real_distribution<float>   d_dir(-1, 1);
 
@@ -651,7 +652,6 @@ void Scene_Xyrus::drawPercentage() {
 	std::stringstream ss;
 	ss << std::fixed << std::setprecision(2) << percentage;
 	std::string str = ss.str();
-
 	sf::Text text = sf::Text("PERCENT COMPLETE: " + str + "%", Assets::getInstance().getFont("main"), 15);
 
 	text.setPosition(10.f, 30.f);
@@ -673,7 +673,7 @@ void Scene_Xyrus::drawTimer()
 void Scene_Xyrus::drawWin() {}
 
 
-void Scene_Xyrus::drawLife() {}
+
 
 void Scene_Xyrus::drawBorder() {
 
@@ -696,5 +696,32 @@ void Scene_Xyrus::drawBorder() {
 
 }
 
-void Scene_Xyrus::spawnLife() {}
+void Scene_Xyrus::drawLife() {
+	for (auto e : _entityManager.getEntities("life")) {
+		auto& anim = e->getComponent<CAnimation>().animation;
+		auto& tfm = e->getComponent<CTransform>();
+		auto originalPos = tfm.pos;
+
+		if (_lives == 0) {
+			e->destroy();
+			return;
+		}
+
+		for (int i = 0; i < _lives; ++i) {
+			sf::Vector2f newPos = originalPos;
+			newPos.x += i * 30.f;
+			anim.getSprite().setPosition(newPos);
+			_game->window().draw(anim.getSprite());
+		}
+	}
+}
+void Scene_Xyrus::spawnLife() {
+	sf::Vector2f pos{ 500.f, 20.f };
+
+	auto life = _entityManager.addEntity("life");
+	life->addComponent<CTransform>(pos, sf::Vector2f(0.f, 0.f));
+
+	auto sprite = life->addComponent<CAnimation>(Assets::getInstance()
+		.getAnimation("lives")).animation.getSprite();
+}
 
