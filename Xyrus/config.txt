@@ -7,8 +7,9 @@ Font    main            ../assets/fonts/ChocoShake.ttf
 Font    Arial           ../assets/fonts/arial.ttf
 Font    Arcade          ../assets/fonts/arcadeclassic.regular.ttf
 
-Music gameTheme         ../assets/Music/frogger.ogg
-Music missionTheme      ../assets/Music/tweener.ogg
+Music gameTheme         ../assets/Music/game-music-loop-6-144641.ogg
+Music missionTheme      ../assets/Music/game-music-loop-6-144641.ogg
+Music gaeThemeOld         ../assets/Music/frogger.ogg
 
 # Textures
 Texture Background      ../assets/Textures/BlackRed.jpg
@@ -24,6 +25,10 @@ Sprite Title            Title 0 0 630 630
 # SOUNDS
 Sound death             ../assets/Sound/froggerDie.wav
 Sound hop               ../assets/Sound/froggerMove.wav
+Sound slime             ../assets/Sound/hit-soundvideo-game-type-230510.ogg
+Sound teleport          ../assets/Sound/game-bonus-2-294436.ogg
+Sound infect            ../assets/Sound/game-bonus-144751.ogg
+Sound blocked           ../assets/Sound/retro-game-shot-152052.ogg
 
 JSON                    ../assets/Textures/froggerAtlas.json
 

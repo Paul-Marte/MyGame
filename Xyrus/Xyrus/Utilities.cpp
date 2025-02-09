@@ -50,3 +50,4 @@ sf::Vector2f uVecBearing(float b)
 {
     return sf::Vector2f(std::cos(degToRad(b)), std::sin(degToRad(b)));
 }
+

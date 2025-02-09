@@ -8,7 +8,7 @@
 
 MusicPlayer::MusicPlayer() {
     _filenames["menuTheme"] = "../assets/Music/dp_progger.flac";  // TO CHANGE
-    _filenames["gameTheme"] = "../assets/Music/dp_frogger_tweener.flac"; // TO CHANGE
+    _filenames["gameTheme"] = "../assets/Music/game-music-loop-6-144641.ogg"; // TO CHANGE
 }
 
 void MusicPlayer::addSong(const std::string& name, const std::string& path) {

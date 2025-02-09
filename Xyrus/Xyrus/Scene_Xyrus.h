@@ -21,7 +21,7 @@ class Scene_Xyrus : public Scene {
 	sPtrEntt				_player{ nullptr };
 	sf::FloatRect           _worldBounds;
 
-	int						_lives{ 5 };
+	int						_lives{ 3 };
 	int						_score{ 0 };
 	int						_scoreTotal{ 0 };
 	int						_scoredHeights[11] = {};
@@ -48,7 +48,9 @@ class Scene_Xyrus : public Scene {
 	void					sAnimation(sf::Time dt);
 	void					drawScore();
 	void					getScore();
+	void					drawPercentage();
 	void					drawLife();
+	void					drawBorder();
 	void					spawnLife();
 	void					drawGameOver();
 	void					drawTimer();

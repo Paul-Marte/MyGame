@@ -13,6 +13,9 @@
 #include <random>
 #include <fstream>
 #include <iostream>
+#include <sstream>
+#include <iomanip>
+
 
 namespace {
 	std::random_device rd;
@@ -49,10 +52,15 @@ void Scene_Xyrus::update(sf::Time dt)
 void Scene_Xyrus::sRender()
 {
 	_game->window().clear();
+	
+	
 	for (auto& e : _entityManager.getEntities("BKG")) {
 		_game->window().draw(e->getComponent<CSprite>().sprite);
 	}
 
+	drawBorder();
+	drawScore();
+	drawPercentage();
 
 
 	for (auto& e : _entityManager.getEntities()) {
@@ -166,29 +174,22 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 		pv.y -= 30.f;
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyup"));
 		_player->getComponent<CInput>().dir = 0;
-		SoundPlayer::getInstance().play("hop", pos);
-	
-
 	}
 	if (_player->getComponent<CInput>().dir == 2) {
 		pv.y += 30.f;
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xydown"));
 		_player->getComponent<CInput>().dir = 0;
-		SoundPlayer::getInstance().play("hop", pos);
-	
 	}
 	if (_player->getComponent<CInput>().dir == 4) {
 		pv.x -= 30.f;
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyleft"));
 		_player->getComponent<CInput>().dir = 0;
-		SoundPlayer::getInstance().play("hop", pos);
-		
 	}
 	if (_player->getComponent<CInput>().dir == 8) {
 		pv.x += 30.f;
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyright"));
 		_player->getComponent<CInput>().dir = 0;
-		SoundPlayer::getInstance().play("hop", pos);
+		
 		
 	}
 
@@ -199,11 +200,13 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 			
 			auto ePos = e->getComponent<CTransform>().pos;
 			if (tempPos == ePos){
-				if(e->getComponent<CState>().state == "infected")
-					
+				if(e->getComponent<CState>().state == "infected"){
+					SoundPlayer::getInstance().play("blocked", pos);
 				return;
+				}
 			}
 		}
+		SoundPlayer::getInstance().play("hop", pos);
 		pos += pv;
 	
 	}
@@ -241,7 +244,7 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 		auto overlap = Physics::getOverlap(_player, e);
 		if (overlap.x > 10 && overlap.y > 10) {
 			_isPaused = true;
-			_player->destroy();
+			//_player->destroy();
 		}
 		//auto ePos = e->getComponent<CTransform>().pos;
 		//auto eBB = e->addComponent<CAnimation>(Assets::getInstance().getAnimation("WBC")).animation.getBB();
@@ -278,7 +281,7 @@ void Scene_Xyrus::spawnWBC()
 	auto bounds = getViewBounds;
 
 	std::uniform_real_distribution<float>   d_width(_wbcConfig.CR, bounds.width - _wbcConfig.CR);
-	std::uniform_real_distribution<float>   d_height((_wbcConfig.CR < 0.f) ? 60.f : _wbcConfig.CR, bounds.height - _wbcConfig.CR);
+	std::uniform_real_distribution<float>   d_height((_wbcConfig.CR < 61.f) ? 61.f : _wbcConfig.CR, bounds.height - _wbcConfig.CR);
 	std::uniform_real_distribution<float>   d_speed(_wbcConfig.SMIN, _wbcConfig.SMAX);
 	std::uniform_real_distribution<float>   d_dir(-1, 1);
 
@@ -334,6 +337,7 @@ void Scene_Xyrus::spawnSlime(sf::Vector2f mPos)
 		slime->addComponent<CBoundingBox>(bb);
 		slime->getComponent<CTransform>().angle = bearing(vel) + 90;
 		slime->addComponent<CAnimation>(Assets::getInstance().getAnimation("slime")).animation.getSprite().setRotation(slime->getComponent<CTransform>().angle = bearing(vel) + 90);
+		SoundPlayer::getInstance().play("slime", pos);
 	}
 
 }
@@ -363,7 +367,6 @@ void Scene_Xyrus::spawnArea()
 
 void Scene_Xyrus::sTeleport()
 {
-
 	if (_entityManager.getEntities("Slime").size() == 1) {
 		for (auto& s: _entityManager.getEntities("Slime")) {
 			auto& pos = s->getComponent<CTransform>().pos;
@@ -373,11 +376,13 @@ void Scene_Xyrus::sTeleport()
 				auto& eGBpos = e->getComponent<CTransform>().pos;
 				if (eGB.contains(pos)) {
 					
-					if (e->getComponent<CState>().state == "infected")
+					if (e->getComponent<CState>().state == "infected") {
+						SoundPlayer::getInstance().play("blocked", pos);
 						return;
+					}
 
+					SoundPlayer::getInstance().play("teleport", pos);
 					_player->getComponent<CTransform>().pos = eGBpos;
-				/*	sInfectUpdate();*/
 					s->destroy();
 					continue;
 				}
@@ -385,6 +390,7 @@ void Scene_Xyrus::sTeleport()
 			continue;
 		}
 	}
+
 		
 }
 
@@ -395,8 +401,10 @@ void Scene_Xyrus::sInfect()
 		auto eGB = e->getComponent<CTransform>().pos;
 
 		if (eGB == pos) {
-			e->getComponent<CState>().state = "infected";
-			
+			if(e->getComponent<CState>().state !="infected"){
+				e->getComponent<CState>().state = "infected";
+				SoundPlayer::getInstance().play("infect", pos);
+			}
 		}
 	}
 }
@@ -407,7 +415,7 @@ void Scene_Xyrus::sInfectUpdate()
 	for (auto e : _entityManager.getEntities("Area")) {
 		
 
-		if (e->getComponent<CState>().state == "infected") {
+		if (e->getComponent<CState>().state == "infected" && e->getComponent<CAnimation>().animation.getName() == "empty") {
 			if(_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf2"));
 		}
@@ -561,8 +569,11 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 {
 	if (_isPaused)
 		return;
+
 	SoundPlayer::getInstance().removeStoppedSounds();
+
 	_entityManager.update();
+	_score = 0;
 
 	auto tempPos = _player->getComponent<CTransform>().pos;
 	sSpawnWBC(dt);
@@ -573,6 +584,8 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	checkSlimeOutOfBounce();
 	sCollisions();
 	adjustPlayerPosition();
+	getScore();
+	_scoreTotal = _score;
 	if(tempPos != _player->getComponent<CTransform>().pos)
 		sInfectUpdate();
 }
@@ -602,14 +615,10 @@ void Scene_Xyrus::sAnimation(sf::Time dt) {
 
 
 void Scene_Xyrus::drawScore() {
-	int totalScore = 0;
-	for (int i = 0; i < 11; ++i) {
-		totalScore += _scoredHeights[i];
-	}
-	_score = totalScore;
 
-	std::string str = std::to_string(_scoreTotal + _score);
-	sf::Text text = sf::Text("SCORE: " + str, Assets::getInstance().getFont("Arial"), 15);
+
+	std::string str = std::to_string(_score);
+	sf::Text text = sf::Text("SCORE: " + str, Assets::getInstance().getFont("main"), 15);
 
 	text.setPosition(10.f, 10.f);
 	_game->window().draw(text);
@@ -617,65 +626,37 @@ void Scene_Xyrus::drawScore() {
 }
 
 void Scene_Xyrus::getScore() {
-	auto pos = _player->getComponent<CTransform>().pos.y;
-	auto name = _player->getComponent<CAnimation>().animation.getName();
-	int posY = static_cast<int>(pos);
-	switch (posY) {
-	case 540:
-		if (name != "die" && _scoredHeights[0] < 1)
-			_scoredHeights[0] = 10;
-		break;
-	case 500:
-		if (name != "die" && _scoredHeights[1] < 1)
-			_scoredHeights[1] = 10;
-		break;
-	case 460:
-		if (name != "die" && _scoredHeights[2] < 1)
-			_scoredHeights[2] = 10;
-		break;
-	case 420:
-		if (name != "die" && _scoredHeights[3] < 1)
-			_scoredHeights[3] = 10;
-		break;
-	case 380:
-		if (name != "die" && _scoredHeights[4] < 1)
-			_scoredHeights[4] = 10;
-		break;
-	case 300:
-		if (name != "die" && _scoredHeights[5] < 1)
-			_scoredHeights[5] = 10;
-		break;
-	case 260:
-		if (name != "die" && _scoredHeights[6] < 1)
-			_scoredHeights[6] = 10;
-		break;
-	case 220:
-		if (name != "die" && _scoredHeights[7] < 1)
-			_scoredHeights[7] = 10;
-		break;
-	case 180:
-		if (name != "die" && _scoredHeights[8] < 1)
-			_scoredHeights[8] = 10;
-		break;
-	case 140:
-		if (name != "die" && _scoredHeights[9] < 1)
-			_scoredHeights[9] = 10;
-		break;
-	case 100:
-		if (name != "die" && _scoredHeights[10] < 1 && _isComplete) {
-			_scoredHeights[10] = 10;
-			_scoreTotal = _scoreTotal + _score + _scoredHeights[10];
-			_score = 0;
-			for (int i = 0; i < 11; ++i) {
-				_scoredHeights[i] = 0;
-			}
-			_isComplete = false;
-		}
+	for (auto e : _entityManager.getEntities("Area")) {
 
-		break;
-	default:
-		break;
+		if(e->getComponent<CState>().state=="infected"){
+			_score++;
+
+		}
 	}
+}
+
+void Scene_Xyrus::drawPercentage() {
+	float score =0 ;
+	for (auto e : _entityManager.getEntities("Area")) {
+
+		if (e->getComponent<CState>().state == "infected") {
+			score++;
+
+		}
+	}
+	
+	float percentage = (score / 399.0f) * 100.f;
+
+
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(2) << percentage;
+	std::string str = ss.str();
+
+	sf::Text text = sf::Text("PERCENT COMPLETE: " + str + "%", Assets::getInstance().getFont("main"), 15);
+
+	text.setPosition(10.f, 30.f);
+	_game->window().draw(text);
+
 }
 
 void Scene_Xyrus::drawGameOver() {}
@@ -693,6 +674,27 @@ void Scene_Xyrus::drawWin() {}
 
 
 void Scene_Xyrus::drawLife() {}
+
+void Scene_Xyrus::drawBorder() {
+
+
+	auto blW = 5.f;
+	auto blH = 0.f;
+	auto windowWidth = _game->_window.getSize().x;
+	auto windowHeight = _game->_window.getSize().y;
+
+
+	for (int c{ 0 };  c <  windowWidth / blW; c++) {
+		
+		sf::CircleShape border;
+		border.setRadius(1);
+		border.setFillColor(sf::Color{ 0,180,0 });
+		border.setPosition({ c*10.f, 60.f });
+		_game->window().draw(border);
+		
+	}
+
+}
 
 void Scene_Xyrus::spawnLife() {}
 
