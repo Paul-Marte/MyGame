@@ -160,7 +160,28 @@ void Scene_Xyrus::spawnPlayer(sf::Vector2f pos)
 	_player->addComponent<CBoundingBox>(bb);
 	auto& sprite = _player->getComponent<CAnimation>().animation.getSprite();
 	centerOrigin(sprite);
-	_player->addComponent<CState>().state = "Alive";
+	_player->addComponent<CState>().state = "spawn";
+}
+
+void Scene_Xyrus::checkPlayerActive(sf::Time dt, sf::Vector2f pos)
+{
+	static sf::Time playerSpawnTime{ sf::seconds(5.f) };
+	
+	if (_entityManager.getEntities("player").size() > 0) {
+		if (_player->getComponent<CState>().state == "spawn") {
+			if (playerSpawnTime <= sf::Time::Zero) {
+				_player->getComponent<CState>().state = "active";
+				std::cout << "im here \n";
+			}
+		}
+	}
+	else {
+		spawnPlayer(pos);
+		playerSpawnTime = sf::seconds(5.f);
+	}
+	
+	playerSpawnTime -= dt;
+	
 }
 
 void Scene_Xyrus::playerMovement(sf::Time dt)
@@ -239,33 +260,25 @@ void Scene_Xyrus::adjustPlayerPosition()
 
 void Scene_Xyrus::checkPlayerWBCCollision()
 {
+	if(_player->getComponent<CState>().state == "active"){
 	auto& pos = _player->getComponent<CTransform>().pos;
 	for (auto e : _entityManager.getEntities("WBC")) {
+			auto overlap = Physics::getOverlap(_player, e);
 
-		auto overlap = Physics::getOverlap(_player, e);
-		if (overlap.x > 10 && overlap.y > 10) {
-			_isPaused = true;
-			//_player->destroy();
+			if (overlap.x > 10 && overlap.y > 10) {
+				
+				std::cout << _lives << "\n";
+				if (_entityManager.getEntities("life").size() > 0) {
+					_lives--;
+					_player->getComponent<CState>().state = "dead";
+					_player->destroy();
+					std::cout << _lives << "\n";
+					return;
+				}
+				
+				
+			}
 		}
-		//auto ePos = e->getComponent<CTransform>().pos;
-		//auto eBB = e->addComponent<CAnimation>(Assets::getInstance().getAnimation("WBC")).animation.getBB();
-
-		//sf::RectangleShape rectangle;
-		//rectangle.setSize(eBB);
-		//rectangle.setPosition(ePos);
-
-		//auto eGB = rectangle.getGlobalBounds();
-
-	
-		//if (eGB.contains(pos) && _player->getComponent<CAnimation>().animation.getName() != "die") {
-		//	/*_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
-		//	SoundPlayer::getInstance().play("death", pos);
-		//	_lives--;*/
-		//	
-	
-		
-		//
-		//}
 	}
 }
 
@@ -368,7 +381,7 @@ void Scene_Xyrus::spawnArea()
 
 void Scene_Xyrus::sTeleport()
 {
-	if (_entityManager.getEntities("Slime").size() == 1) {
+	/*if (_entityManager.getEntities("Slime").size() == 1) {
 		for (auto& s: _entityManager.getEntities("Slime")) {
 			auto& pos = s->getComponent<CTransform>().pos;
 
@@ -381,7 +394,30 @@ void Scene_Xyrus::sTeleport()
 						SoundPlayer::getInstance().play("blocked", pos);
 						return;
 					}
+					std::cout << "X " << pos.x << "    Y " << pos.y << "\n";
+					SoundPlayer::getInstance().play("teleport", pos);
+					_player->getComponent<CTransform>().pos = eGBpos;
+					s->destroy();
+					continue;
+				}
+			}
+			continue;
+		}
+	}*/
 
+	if (_entityManager.getEntities("Slime").size() == 1) {
+		for (auto& s : _entityManager.getEntities("Slime")) {
+			auto& pos = s->getComponent<CTransform>().pos;
+
+			for (auto e : _entityManager.getEntities("Area")) {
+				auto eGB = e->getComponent<CAnimation>().animation.getSprite().getTextureRect().getSize();
+				auto eGBpos = e->getComponent<CTransform>().pos;
+				if (pos.x >= (eGBpos.x-15.f) && pos.x < (eGBpos.x - 15.f) +eGB.x && pos.y >= (eGBpos.y - 15.f) && pos.y < (eGBpos.y - 15.f)+eGB.y ) {
+
+					if (e->getComponent<CState>().state == "infected") {
+						SoundPlayer::getInstance().play("blocked", pos);
+						return;
+					}
 					SoundPlayer::getInstance().play("teleport", pos);
 					_player->getComponent<CTransform>().pos = eGBpos;
 					s->destroy();
@@ -587,6 +623,7 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	adjustPlayerPosition();
 	getScore();
 	_scoreTotal = _score;
+	checkPlayerActive(dt, tempPos);
 	if(tempPos != _player->getComponent<CTransform>().pos)
 		sInfectUpdate();
 }
@@ -709,7 +746,7 @@ void Scene_Xyrus::drawLife() {
 
 		for (int i = 0; i < _lives; ++i) {
 			sf::Vector2f newPos = originalPos;
-			newPos.x += i * 30.f;
+			newPos.x += i * 25.f;
 			anim.getSprite().setPosition(newPos);
 			_game->window().draw(anim.getSprite());
 		}
