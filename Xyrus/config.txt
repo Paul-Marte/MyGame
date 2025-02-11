@@ -38,6 +38,7 @@ JSON                    ../assets/Textures/xyrus.json
 #  Animation    Name            Texture     Speed   Repeats
 Animation       WBC        	Entities    1        no
 Animation       wbcol        	Entities    20       no
+Animation       xyspawn            Entities    40       yes
 Animation       xyup            Entities    30       no
 Animation       xydown          Entities    30       no
 Animation       xyleft          Entities    30       no
@@ -47,6 +48,7 @@ Animation       empty        	Entities    1        no
 Animation       infection      	Entities    1        no
 Animation       inf      	Entities    30       yes
 Animation       inf2      	Entities    20       yes
+Animation       inf3      	Entities    1        no
 
 Animation       die             Entities    8        no
 

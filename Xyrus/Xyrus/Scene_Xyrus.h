@@ -62,6 +62,7 @@ class Scene_Xyrus : public Scene {
 	void                    checkWBCWBCCollision();
 	void                    checkSlimeOutOfBounce();
 	void					checkPlayerActive(sf::Time dt, sf::Vector2f pos);
+	void					checkInfectionStatus(sf::Time dt);
 	void                    init(const std::string& path);
 	void                    loadLevel(const std::string& path);
 	void                    spawnPlayer(sf::Vector2f pos);

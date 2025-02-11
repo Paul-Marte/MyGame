@@ -156,32 +156,32 @@ void Scene_Xyrus::spawnPlayer(sf::Vector2f pos)
 {
 	_player = _entityManager.addEntity("player");
 	_player->addComponent<CTransform>(pos);
-	auto bb = _player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyup")).animation.getBB();
+	auto bb = _player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyspawn")).animation.getBB();
 	_player->addComponent<CBoundingBox>(bb);
 	auto& sprite = _player->getComponent<CAnimation>().animation.getSprite();
 	centerOrigin(sprite);
 	_player->addComponent<CState>().state = "spawn";
+	_player->getComponent<CState>().time = sf::seconds(3.f);
 }
 
 void Scene_Xyrus::checkPlayerActive(sf::Time dt, sf::Vector2f pos)
 {
-	static sf::Time playerSpawnTime{ sf::seconds(5.f) };
 	
+
 	if (_entityManager.getEntities("player").size() > 0) {
 		if (_player->getComponent<CState>().state == "spawn") {
-			if (playerSpawnTime <= sf::Time::Zero) {
+			if (_player->getComponent<CState>().time <= sf::Time::Zero) {
 				_player->getComponent<CState>().state = "active";
-				std::cout << "im here \n";
+				_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyup"));
 			}
 		}
 	}
 	else {
 		spawnPlayer(pos);
-		playerSpawnTime = sf::seconds(5.f);
 	}
-	
-	playerSpawnTime -= dt;
-	
+
+	_player->getComponent<CState>().time -= dt;
+
 }
 
 void Scene_Xyrus::playerMovement(sf::Time dt)
@@ -194,26 +194,39 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 
 	if (_player->getComponent<CInput>().dir == 1) {
 		pv.y -= 30.f;
+
+		if (_player->getComponent<CState>().state == "active")
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyup"));
+
 		_player->getComponent<CInput>().dir = 0;
 	}
 	if (_player->getComponent<CInput>().dir == 2) {
 		pv.y += 30.f;
+
+		if (_player->getComponent<CState>().state == "active")
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xydown"));
+
 		_player->getComponent<CInput>().dir = 0;
 	}
 	if (_player->getComponent<CInput>().dir == 4) {
 		pv.x -= 30.f;
+
+		if (_player->getComponent<CState>().state == "active")
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyleft"));
+
 		_player->getComponent<CInput>().dir = 0;
 	}
 	if (_player->getComponent<CInput>().dir == 8) {
 		pv.x += 30.f;
+		
+		if (_player->getComponent<CState>().state == "active")
 		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyright"));
+
 		_player->getComponent<CInput>().dir = 0;
-		
-		
 	}
+
+	
+	
 
 
 	if (pv != sf::Vector2f(0, 0)) {
@@ -274,9 +287,7 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 					_player->destroy();
 					std::cout << _lives << "\n";
 					return;
-				}
-				
-				
+				}		
 			}
 		}
 	}
@@ -381,29 +392,6 @@ void Scene_Xyrus::spawnArea()
 
 void Scene_Xyrus::sTeleport()
 {
-	/*if (_entityManager.getEntities("Slime").size() == 1) {
-		for (auto& s: _entityManager.getEntities("Slime")) {
-			auto& pos = s->getComponent<CTransform>().pos;
-
-			for (auto e : _entityManager.getEntities("Area")) {
-				auto eGB = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds();
-				auto& eGBpos = e->getComponent<CTransform>().pos;
-				if (eGB.contains(pos)) {
-					
-					if (e->getComponent<CState>().state == "infected") {
-						SoundPlayer::getInstance().play("blocked", pos);
-						return;
-					}
-					std::cout << "X " << pos.x << "    Y " << pos.y << "\n";
-					SoundPlayer::getInstance().play("teleport", pos);
-					_player->getComponent<CTransform>().pos = eGBpos;
-					s->destroy();
-					continue;
-				}
-			}
-			continue;
-		}
-	}*/
 
 	if (_entityManager.getEntities("Slime").size() == 1) {
 		for (auto& s : _entityManager.getEntities("Slime")) {
@@ -420,6 +408,7 @@ void Scene_Xyrus::sTeleport()
 					}
 					SoundPlayer::getInstance().play("teleport", pos);
 					_player->getComponent<CTransform>().pos = eGBpos;
+					sInfectUpdate();
 					s->destroy();
 					continue;
 				}
@@ -448,15 +437,46 @@ void Scene_Xyrus::sInfect()
 
 void Scene_Xyrus::sInfectUpdate()
 {
-	
 	for (auto e : _entityManager.getEntities("Area")) {
-		
-
 		if (e->getComponent<CState>().state == "infected" && e->getComponent<CAnimation>().animation.getName() == "empty") {
 			if(_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf2"));
 		}
 	}
+}
+
+void Scene_Xyrus::checkInfectionStatus(sf::Time dt)
+{
+	for (auto e : _entityManager.getEntities("Area")) {
+		auto& state = e->getComponent<CState>(); 
+		auto& animation = e->getComponent<CAnimation>();
+
+		if (state.state == "infected" && animation.animation.getName() == "inf2" && state.time != sf::Time::Zero) {
+			state.time -= dt;
+		}
+
+		if (state.state == "infected" && animation.animation.getName() == "inf2" && state.time <= sf::Time::Zero) {
+			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf3"));
+		}
+	}
+	
+	
+	/*for (auto e : _entityManager.getEntities("Area")) {
+		auto time = e->getComponent<CState>().time;
+		
+		if (e->getComponent<CState>().state == "infected" && e->getComponent<CAnimation>().animation.getName() == "inf2" && time != sf::Time::Zero) {
+
+			time -= dt;
+			std::cout << time.asSeconds() << "\n";
+
+		}
+		if (e->getComponent<CState>().state == "infected" && e->getComponent<CAnimation>().animation.getName() == "inf2" && time == sf::Time::Zero) {
+			
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf3"));
+			
+		}
+			
+	}*/
 }
 
 void Scene_Xyrus::sSpawnWBC(sf::Time dt)
@@ -624,6 +644,7 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	getScore();
 	_scoreTotal = _score;
 	checkPlayerActive(dt, tempPos);
+	checkInfectionStatus(dt);
 	if(tempPos != _player->getComponent<CTransform>().pos)
 		sInfectUpdate();
 }

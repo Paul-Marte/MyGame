@@ -73,7 +73,7 @@ void Scene_Menu::sRender()
 	sprite.setPosition(0.f, 0.f);
 
 	static const sf::Color selectedColor(255, 255, 255);
-	static const sf::Color normalColor(0, 180, 0);	// changed to dark green
+	static const sf::Color normalColor(0, 180, 0);	
 
 	static const sf::Color backgroundColor(100, 100, 255);
 
@@ -82,6 +82,19 @@ void Scene_Menu::sRender()
 		Assets::getInstance().getFont("main"), 20);
 	footer.setFillColor(normalColor);
 	footer.setPosition(32, 472);
+
+	sf::Text credit1("All images are from DEEPAI.ORG",
+		Assets::getInstance().getFont("main"), 20);
+	credit1.setFillColor(normalColor);
+	auto credit1Width = credit1.getGlobalBounds().width;
+	credit1.setPosition((630 - credit1Width) / 2.f, 570);
+
+	sf::Text credit2("All sound effect and music are from PIXABAY.COM",
+		Assets::getInstance().getFont("main"), 20);
+	credit2.setFillColor(normalColor);
+	auto credit2Width = credit2.getGlobalBounds().width;
+	credit2.setPosition((630 - credit2Width) / 2.f, 600);
+
 
 	_game->window().clear(backgroundColor);
 
@@ -103,6 +116,8 @@ void Scene_Menu::sRender()
 	}
 
 	_game->window().draw(footer);
+	_game->window().draw(credit1);
+	_game->window().draw(credit2);
 
 }
 
