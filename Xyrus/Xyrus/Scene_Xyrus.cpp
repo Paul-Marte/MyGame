@@ -61,6 +61,7 @@ void Scene_Xyrus::sRender()
 	drawBorder();
 	drawScore();
 	drawPercentage();
+	drawTimer();
 
 
 
@@ -761,9 +762,9 @@ void Scene_Xyrus::drawGameOver() {}
 void Scene_Xyrus::drawTimer()
 {
 	std::string str = std::to_string(static_cast<int>(_timer));
-	sf::Text text = sf::Text("COUNTDOWN: " + str, Assets::getInstance().getFont("Arial"), 15);
+	sf::Text text = sf::Text("COUNTDOWN: " + str, Assets::getInstance().getFont("main"), 15);
 
-	text.setPosition(300.f, 15.f);
+	text.setPosition(485.f, 10.f);
 	_game->window().draw(text);
 }
 
@@ -815,7 +816,7 @@ void Scene_Xyrus::drawLife() {
 	}
 }
 void Scene_Xyrus::spawnLife() {
-	sf::Vector2f pos{ 500.f, 20.f };
+	sf::Vector2f pos{ 500.f, 45.f };
 
 	auto life = _entityManager.addEntity("life");
 	life->addComponent<CTransform>(pos);
