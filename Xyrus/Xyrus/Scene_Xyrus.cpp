@@ -44,6 +44,18 @@ void Scene_Xyrus::init(const std::string& levelPath) {
 
 void Scene_Xyrus::update(sf::Time dt)
 {
+	if (_lives > 0 && !_isFinish)
+		_timer -= dt.asSeconds();
+
+	if (_timer <= 0.f) {
+		//_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
+		//SoundPlayer::getInstance().play("death", _player->getComponent<CTransform>().pos);
+		_lives--;
+		/*if (_player->getComponent<CTransform>().pos == _player->getComponent<CTransform>().pos) {
+			_timer = _timerThreshold;
+		}*/
+	}
+	
 	sUpdate(dt);
 }
 
@@ -106,6 +118,7 @@ void Scene_Xyrus::sDoAction(const Command& command)
 		else if (command.name() == "UP") { _player->getComponent<CInput>().dir |= CInput::dirs::UP; }
 		else if (command.name() == "DOWN") { _player->getComponent<CInput>().dir |= CInput::dirs::DOWN; }
 		else if (command.name() == "INFECT") { sInfect(); }
+		else if (command.name() == "FINAL") { sFinalBlow(); }
 		else if (command.name() == "TELEPORT") { sTeleport(); }
 	}
 	// on Key Release
@@ -146,6 +159,7 @@ void Scene_Xyrus::registerActions()
 	registerAction(sf::Keyboard::E, "TELEPORT");
 	registerAction(sf::Keyboard::R, "TELEPORT");
 	registerAction(sf::Keyboard::Space, "INFECT");
+	registerAction(sf::Keyboard::M, "FINAL");
 
 	registerAction(sf::Mouse::Left + 1000, "LEFTCLICK");
 
@@ -238,7 +252,7 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 			
 			auto ePos = e->getComponent<CTransform>().pos;
 			if (tempPos == ePos){
-				if(e->getComponent<CState>().state == "infected"){
+				if(e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect"){
 					SoundPlayer::getInstance().play("blocked", pos);
 				return;
 				}
@@ -405,7 +419,7 @@ void Scene_Xyrus::sTeleport()
 				auto eGBpos = e->getComponent<CTransform>().pos;
 				if (pos.x >= (eGBpos.x-15.f) && pos.x < (eGBpos.x - 15.f) +eGB.x && pos.y >= (eGBpos.y - 15.f) && pos.y < (eGBpos.y - 15.f)+eGB.y ) {
 
-					if (e->getComponent<CState>().state == "infected") {
+					if (e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect") {
 						SoundPlayer::getInstance().play("blocked", pos);
 						return;
 					}
@@ -430,8 +444,8 @@ void Scene_Xyrus::sInfect()
 		auto eGB = e->getComponent<CTransform>().pos;
 
 		if (eGB == pos) {
-			if(e->getComponent<CState>().state !="infected"){
-				e->getComponent<CState>().state = "infected";
+			if(e->getComponent<CState>().state =="none"){
+				e->getComponent<CState>().state = "preinfect";
 				SoundPlayer::getInstance().play("infect", pos);
 			}
 		}
@@ -441,11 +455,35 @@ void Scene_Xyrus::sInfect()
 void Scene_Xyrus::sInfectUpdate()
 {
 	for (auto e : _entityManager.getEntities("Area")) {
-		if (e->getComponent<CState>().state == "infected" && e->getComponent<CAnimation>().animation.getName() == "empty") {
+		if (e->getComponent<CState>().state == "preinfect" && e->getComponent<CAnimation>().animation.getName() == "empty") {
 			if(_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf2"));
 		}
+
+		if (e->getComponent<CState>().state == "final" && e->getComponent<CAnimation>().animation.getName() == "empty") {
+			//if (_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf"));
+		}
 	}
+}
+
+void Scene_Xyrus::sFinalBlow()
+{
+	auto& pos = _player->getComponent<CTransform>().pos;
+	for (auto e : _entityManager.getEntities("Area")) {
+		auto eGB = e->getComponent<CTransform>().pos;
+
+		if (eGB == pos) {
+			if (e->getComponent<CState>().state == "none") {
+				e->getComponent<CState>().state = "final";
+				SoundPlayer::getInstance().play("infect", pos);
+			}
+		}
+	}
+}
+
+void Scene_Xyrus::sAreaFInal()
+{
 }
 
 void Scene_Xyrus::checkInfectionStatus(sf::Time dt)
@@ -454,32 +492,17 @@ void Scene_Xyrus::checkInfectionStatus(sf::Time dt)
 		auto& state = e->getComponent<CState>(); 
 		auto& animation = e->getComponent<CAnimation>();
 
-		if (state.state == "infected" && animation.animation.getName() == "inf2" && state.time != sf::Time::Zero) {
+		if (state.state == "preinfect" && animation.animation.getName() == "inf2" && state.time != sf::Time::Zero) {
 			state.time -= dt;
 		}
 
-		if (state.state == "infected" && animation.animation.getName() == "inf2" && state.time <= sf::Time::Zero) {
+		if (state.state == "preinfect" && animation.animation.getName() == "inf2" && state.time <= sf::Time::Zero) {
 			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf3"));
+			e->getComponent<CState>().state = "infected";
 		}
 	}
 	
 	
-	/*for (auto e : _entityManager.getEntities("Area")) {
-		auto time = e->getComponent<CState>().time;
-		
-		if (e->getComponent<CState>().state == "infected" && e->getComponent<CAnimation>().animation.getName() == "inf2" && time != sf::Time::Zero) {
-
-			time -= dt;
-			std::cout << time.asSeconds() << "\n";
-
-		}
-		if (e->getComponent<CState>().state == "infected" && e->getComponent<CAnimation>().animation.getName() == "inf2" && time == sf::Time::Zero) {
-			
-				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf3"));
-			
-		}
-			
-	}*/
 }
 
 void Scene_Xyrus::sSpawnWBC(sf::Time dt)
@@ -619,30 +642,43 @@ void Scene_Xyrus::checkAreaWBCCollision()
 		auto& posE = e->getComponent<CTransform>().pos;
 
 		for (auto nE : _entityManager.getEntities("Area")) {		
-			if(nE->getComponent<CAnimation>().animation.getName() =="inf3"){
-			auto velNE = nE->getComponent<CTransform>().vel;
-			auto posNE = nE->getComponent<CTransform>().pos;
+			
+			if (nE->getComponent<CAnimation>().animation.getName() == "inf2") {
+				auto posNE = nE->getComponent<CTransform>().pos;
 
 
-			if (dist(posE, posNE) < e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width / 2.0f) {
+				if (dist(posE, posNE) < e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width - 10.f) {
 
-				sf::Vector2f collisionNormal = normalize(posE - posNE);
+					nE->getComponent<CState>().state = "none";
+					nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("empty"));
 
-				sf::Vector2f relativeVelocity = velE - velNE;
-
-				float velocityAlongNormal = relativeVelocity.x * collisionNormal.x + relativeVelocity.y * collisionNormal.y;
-
-				if (velocityAlongNormal > 0) {
-					continue;
 				}
-
-				sf::Vector2f impulse = collisionNormal * (-2.0f * velocityAlongNormal);
-				velE += impulse;
-				//velNE -= impulse;
-				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
-
 			}
-			}
+				
+			if(nE->getComponent<CAnimation>().animation.getName() =="inf3"){
+					auto velNE = nE->getComponent<CTransform>().vel;
+					auto posNE = nE->getComponent<CTransform>().pos;
+
+
+					if (dist(posE, posNE) < e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width - 10.f) {
+
+						sf::Vector2f collisionNormal = normalize(posE - posNE);
+
+						sf::Vector2f relativeVelocity = velE - velNE;
+
+						float velocityAlongNormal = relativeVelocity.x * collisionNormal.x + relativeVelocity.y * collisionNormal.y;
+
+						if (velocityAlongNormal > 0) {
+							continue;
+						}
+
+						sf::Vector2f impulse = collisionNormal * (-2.0f * velocityAlongNormal);
+						velE += impulse;
+						
+						e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
+
+					}
+				}
 		}
 	}
 }
@@ -653,7 +689,7 @@ void Scene_Xyrus::checkSlimeOutOfBounce()
 		if (slime->getTag() == "Slime") {
 			auto pos = slime->getComponent<CTransform>().pos;
 			auto bb = slime->getComponent<CAnimation>().animation.getBB();
-			if (pos.x + bb.x < 0 || pos.x - bb.x > _game->windowSize().x || pos.y + bb.y < 0 || pos.y - bb.y > _game->windowSize().y) {
+			if (pos.x + bb.x < 0 || pos.x - bb.x > _game->windowSize().x || pos.y + bb.y < 90.f || pos.y - bb.y > _game->windowSize().y) {
 				slime->destroy();
 			}
 		}
@@ -727,7 +763,7 @@ void Scene_Xyrus::drawScore() {
 void Scene_Xyrus::getScore() {
 	for (auto e : _entityManager.getEntities("Area")) {
 
-		if(e->getComponent<CState>().state=="infected"){
+		if(e->getComponent<CState>().state=="infected" || e->getComponent<CState>().state == "preinfect"){
 			_score++;
 
 		}
@@ -738,7 +774,7 @@ void Scene_Xyrus::drawPercentage() {
 	float score =0 ;
 	for (auto e : _entityManager.getEntities("Area")) {
 
-		if (e->getComponent<CState>().state == "infected") {
+		if (e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect") {
 			score++;
 
 		}
@@ -815,6 +851,7 @@ void Scene_Xyrus::drawLife() {
 
 	}
 }
+
 void Scene_Xyrus::spawnLife() {
 	sf::Vector2f pos{ 500.f, 45.f };
 

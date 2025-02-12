@@ -46,7 +46,7 @@ Animation       xyright         Entities    30       no
 Animation       slime		Entities    10       yes
 Animation       empty        	Entities    1        no
 Animation       infection      	Entities    1        no
-Animation       inf      	Entities    30       yes
+Animation       inf      	Entities    20       yes
 Animation       inf2      	Entities    20       yes
 Animation       inf3      	Entities    1        no
 

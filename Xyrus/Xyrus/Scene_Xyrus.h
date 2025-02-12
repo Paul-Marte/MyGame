@@ -76,6 +76,8 @@ class Scene_Xyrus : public Scene {
 	void                    sTeleport();
 	void                    sInfect();
 	void                    sInfectUpdate();
+	void                    sFinalBlow();
+	void                    sAreaFInal();
 	void	                registerActions();
 	void                    checkIfDead(sPtrEntt e);
 	void					sKeepWBCInBounds();
