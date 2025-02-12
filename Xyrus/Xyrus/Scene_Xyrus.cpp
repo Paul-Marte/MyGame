@@ -181,7 +181,9 @@ void Scene_Xyrus::checkPlayerActive(sf::Time dt, sf::Vector2f pos)
 	}
 
 	_player->getComponent<CState>().time -= dt;
-
+	
+	
+	
 }
 
 void Scene_Xyrus::playerMovement(sf::Time dt)
@@ -568,6 +570,7 @@ void Scene_Xyrus::sCollisions()
 {
 	checkWBCWBCCollision();
 	checkPlayerWBCCollision();
+	checkAreaWBCCollision();
 }
 
 void Scene_Xyrus::checkWBCWBCCollision()
@@ -602,6 +605,42 @@ void Scene_Xyrus::checkWBCWBCCollision()
 				velNE -= impulse;
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
 
+			}
+		}
+	}
+}
+
+
+void Scene_Xyrus::checkAreaWBCCollision()
+{
+	for (auto e : _entityManager.getEntities("WBC")) {
+		auto& velE = e->getComponent<CTransform>().vel;
+		auto& posE = e->getComponent<CTransform>().pos;
+
+		for (auto nE : _entityManager.getEntities("Area")) {		
+			if(nE->getComponent<CAnimation>().animation.getName() =="inf3"){
+			auto velNE = nE->getComponent<CTransform>().vel;
+			auto posNE = nE->getComponent<CTransform>().pos;
+
+
+			if (dist(posE, posNE) < e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width / 2.0f) {
+
+				sf::Vector2f collisionNormal = normalize(posE - posNE);
+
+				sf::Vector2f relativeVelocity = velE - velNE;
+
+				float velocityAlongNormal = relativeVelocity.x * collisionNormal.x + relativeVelocity.y * collisionNormal.y;
+
+				if (velocityAlongNormal > 0) {
+					continue;
+				}
+
+				sf::Vector2f impulse = collisionNormal * (-2.0f * velocityAlongNormal);
+				velE += impulse;
+				//velNE -= impulse;
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
+
+			}
 			}
 		}
 	}
@@ -767,19 +806,21 @@ void Scene_Xyrus::drawLife() {
 
 		for (int i = 0; i < _lives; ++i) {
 			sf::Vector2f newPos = originalPos;
-			newPos.x += i * 25.f;
+			newPos.x += i * 20.f;
+			
 			anim.getSprite().setPosition(newPos);
 			_game->window().draw(anim.getSprite());
 		}
+
 	}
 }
 void Scene_Xyrus::spawnLife() {
 	sf::Vector2f pos{ 500.f, 20.f };
 
 	auto life = _entityManager.addEntity("life");
-	life->addComponent<CTransform>(pos, sf::Vector2f(0.f, 0.f));
+	life->addComponent<CTransform>(pos);
+	life->addComponent<CAnimation>(Assets::getInstance().getAnimation("lives"));
+	
 
-	auto sprite = life->addComponent<CAnimation>(Assets::getInstance()
-		.getAnimation("lives")).animation.getSprite();
 }
 

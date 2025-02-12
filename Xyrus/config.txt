@@ -15,7 +15,7 @@ Music gaeThemeOld         ../assets/Music/frogger.ogg
 Texture Background      ../assets/Textures/BlackRed.jpg
 Texture Menu		../assets/Textures/MenuBackground600.jpg
 Texture Title           ../assets/Textures/FroggerTitle.png
-Texture Entities        ../assets/Textures/xyrus.png
+Texture Entities        ../assets/Textures/xyrusCopy.png
 
 # Sprites
 Sprite Background       Background   0 0  630 630
@@ -30,7 +30,7 @@ Sound teleport          ../assets/Sound/game-bonus-2-294436.ogg
 Sound infect            ../assets/Sound/game-bonus-144751.ogg
 Sound blocked           ../assets/Sound/retro-game-shot-152052.ogg
 
-JSON                    ../assets/Textures/xyrus.json
+JSON                    ../assets/Textures/xyrusCopy.json
 
 
 
