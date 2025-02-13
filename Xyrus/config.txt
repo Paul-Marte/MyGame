@@ -3,7 +3,7 @@
 Window  	630 630
 
 
-Font    main            ../assets/fonts/ChocoShake.ttf
+Font    main            ../assets/fonts/Sansation.ttf
 Font    Arial           ../assets/fonts/arial.ttf
 Font    Arcade          ../assets/fonts/arcadeclassic.regular.ttf
 

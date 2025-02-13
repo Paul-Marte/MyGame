@@ -127,7 +127,6 @@ void Scene_Xyrus::sDoAction(const Command& command)
 	}
 	else if (command.type() == "CLICK") {
 		if (command.name() == "LEFTCLICK") {
-			std::cout << "left" << command._mPos.x << " Y " << command._mPos.y << "\n";
 			sf::Vector2f floatVector(static_cast<float>(command._mPos.x), static_cast<float>(command._mPos.y));
 			spawnSlime(floatVector);
 		}
@@ -242,17 +241,13 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 		_player->getComponent<CInput>().dir = 0;
 	}
 
-	
-	
-
-
 	if (pv != sf::Vector2f(0, 0)) {
 		auto tempPos = pos + pv;
 		for (auto e : _entityManager.getEntities("Area")) {
 			
 			auto ePos = e->getComponent<CTransform>().pos;
 			if (tempPos == ePos){
-				if(e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect"){
+				if(e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect"|| e->getComponent<CState>().state == "final"){
 					SoundPlayer::getInstance().play("blocked", pos);
 				return;
 				}
@@ -295,14 +290,12 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 	for (auto e : _entityManager.getEntities("WBC")) {
 			auto overlap = Physics::getOverlap(_player, e);
 
-			if (overlap.x > 10 && overlap.y > 10) {
-				
-				std::cout << _lives << "\n";
+			if (overlap.x > 10 && overlap.y > 10) {				
+		
 				if (_entityManager.getEntities("life").size() > 0) {
 					_lives--;
 					_player->getComponent<CState>().state = "dead";
 					_player->destroy();
-					std::cout << _lives << "\n";
 					return;
 				}		
 			}
@@ -392,8 +385,8 @@ void Scene_Xyrus::spawnArea()
 	auto windowHeight = _game->_window.getSize().y;
 
 
-	for (int r{ 0 }; r < windowHeight/ blH; r++) {
-		for (int c{ 2 }; c < windowWidth/ blW; c++) {
+	for (int r{ 0 }; r < windowWidth / blW; r++) {
+		for (int c{ 2 }; c < windowHeight / blH; c++) {
 
 			auto e = _entityManager.addEntity("Area");
 			sf::Vector2f  pos{ static_cast<float>(r*blW+15.f), static_cast<float>(c*blH+15.f) };
@@ -482,9 +475,35 @@ void Scene_Xyrus::sFinalBlow()
 	}
 }
 
-void Scene_Xyrus::sAreaFInal()
-{
+void Scene_Xyrus::sAreaFInalCheck(sf::Time dt) {
+	for (auto e : _entityManager.getEntities("Area")) {
+		auto& posE = e->getComponent<CTransform>().pos;
+
+		if (e->getComponent<CState>().state == "final" && e->getComponent<CAnimation>().animation.getName() == "inf") {
+
+			for (auto nE : _entityManager.getEntities("Area")) {
+				if (e == nE) {
+					continue;
+				}
+
+				auto& posNE = nE->getComponent<CTransform>().pos;
+
+				if (((posE.y == posNE.y) && (posE.x - posNE.x == 30.f || posE.x - posNE.x == -30.f)) || ((posE.x == posNE.x) && (posE.y - posNE.y == 30.f || posE.y - posNE.y == -30.f))) {
+
+					if (nE->getComponent<CState>().state != "none") {
+
+						nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf"));
+						nE->getComponent<CState>().state = "final";
+				
+					}
+
+				}
+			}
+		}
+	
+	}
 }
+
 
 void Scene_Xyrus::checkInfectionStatus(sf::Time dt)
 {
@@ -508,17 +527,17 @@ void Scene_Xyrus::checkInfectionStatus(sf::Time dt)
 void Scene_Xyrus::sSpawnWBC(sf::Time dt)
 {
 	static bool firstSpawn = true;
-	static sf::Time countDownTimer{ sf::Time::Zero };
+	static sf::Time countDownTimerSpawnWBC{ sf::Time::Zero };
 
-	if (firstSpawn || countDownTimer <= sf::Time::Zero) {
+	if (firstSpawn || countDownTimerSpawnWBC <= sf::Time::Zero) {
 		if (_entityManager.getEntities("WBC").size() < 7)
 			spawnWBC();
 
 		firstSpawn = false;
-		countDownTimer = sf::seconds(5.f);
+		countDownTimerSpawnWBC = sf::seconds(5.f);
 	}
 
-	countDownTimer -= dt;
+	countDownTimerSpawnWBC -= dt;
 }
 
 
@@ -538,8 +557,7 @@ void Scene_Xyrus::loadLevel(const std::string& path)
 		if (token == "Bkg") {
 			std::string name;
 			sf::Vector2f pos;
-			config >> name >> pos.x >> pos.y;
-			std::cout << "name " << name << "\n";
+			config >> name >> pos.x >> pos.y;		
 
 			auto e = _entityManager.addEntity("BKG");
 			e->addComponent<CTransform>(pos);
@@ -721,6 +739,7 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	_scoreTotal = _score;
 	checkPlayerActive(dt, tempPos);
 	checkInfectionStatus(dt);
+	sAreaFInalCheck(dt);
 	if(tempPos != _player->getComponent<CTransform>().pos)
 		sInfectUpdate();
 }
