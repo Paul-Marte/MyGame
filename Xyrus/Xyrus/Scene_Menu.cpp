@@ -43,8 +43,8 @@ void Scene_Menu::init()
 	_menuStrings.push_back("Level 3");
 
 	_levelPaths.push_back("../level1.txt"); 
-	_levelPaths.push_back("../level1.txt");  // TO CHANGE
-	_levelPaths.push_back("../level1.txt");// TO CHANGE
+	_levelPaths.push_back("../level2.txt");  
+	_levelPaths.push_back("../level3.txt");
 
 	_menuText.setFont(Assets::getInstance().getFont("main"));
 
@@ -83,12 +83,6 @@ void Scene_Menu::sRender()
 	footer.setFillColor(normalColor);
 	footer.setPosition(32, 472);
 
-	sf::Text credit1("All images are from DEEPAI.ORG",
-		Assets::getInstance().getFont("main"), 20);
-	credit1.setFillColor(normalColor);
-	auto credit1Width = credit1.getGlobalBounds().width;
-	credit1.setPosition((630 - credit1Width) / 2.f, 570);
-
 	sf::Text credit2("All sound effect and music are from PIXABAY.COM",
 		Assets::getInstance().getFont("main"), 20);
 	credit2.setFillColor(normalColor);
@@ -116,7 +110,6 @@ void Scene_Menu::sRender()
 	}
 
 	_game->window().draw(footer);
-	_game->window().draw(credit1);
 	_game->window().draw(credit2);
 
 }
@@ -135,8 +128,7 @@ void Scene_Menu::sDoAction(const Command& action)
 			_menuIndex = (_menuIndex + 1) % _menuStrings.size();
 		}
 		else if (action.name() == "SELECT")
-		{
-			if (_menuIndex == 0)
+		{			
 				_game->changeScene("SELECT", std::make_shared<Scene_Xyrus>(_game, _levelPaths[_menuIndex]));
 		}
 		else if (action.name() == "QUIT")

@@ -22,7 +22,7 @@ class Scene_Xyrus : public Scene {
 	sf::FloatRect           _worldBounds;
 
 	int						_lives{ 5 };
-	int						_score{ 0 };
+	int						_immuneScore{ 0 };
 	int						_scoreTotal{ 0 };
 	int						_scoredHeights[11] = {};
 	int						_winningScore{ 550 };
@@ -32,8 +32,9 @@ class Scene_Xyrus : public Scene {
 	bool                    _drawTextures{ true };
 	bool                    _drawAABB{ false };
 	bool                    _drawCam{ false };
-	float					_timer = 90.f;
-	const float				_timerThreshold = 90.f;
+	float					_timer = 30.f;
+	float					_targetPercentage = 100.00f;
+	const float				_timerThreshold = 30.f;
 
 	EnemyConfig                 _wbcConfig;
 	BulletConfig                _slimeConfig;
@@ -46,9 +47,10 @@ class Scene_Xyrus : public Scene {
 	void	                onEnd() override;
 	void                    sSpawnWBC(sf::Time dt);
 	void					sAnimation(sf::Time dt);
-	void					drawScore();
-	void					getScore();
-	void					drawPercentage();
+	void					drawImmuneScore();
+	void					getInfectedScore();
+	void					drawImmunePercentage();
+	void					drawTargetPercent();
 	void					drawLife();
 	void					drawBorder();
 	void					spawnLife();
@@ -77,7 +79,7 @@ class Scene_Xyrus : public Scene {
 	void                    sInfect();
 	void                    sInfectUpdate();
 	void                    sFinalBlow();
-	void                    sAreaFInalCheck(sf::Time dt);
+	void                    sAreaFinalCheck(sf::Time dt);
 	void	                registerActions();
 	void                    checkIfDead(sPtrEntt e);
 	void					sKeepWBCInBounds();

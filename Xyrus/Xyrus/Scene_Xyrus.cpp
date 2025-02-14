@@ -51,9 +51,9 @@ void Scene_Xyrus::update(sf::Time dt)
 		//_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
 		//SoundPlayer::getInstance().play("death", _player->getComponent<CTransform>().pos);
 		_lives--;
-		/*if (_player->getComponent<CTransform>().pos == _player->getComponent<CTransform>().pos) {
-			_timer = _timerThreshold;
-		}*/
+		
+		_timer = _timerThreshold;
+		_player->destroy();
 	}
 	
 	sUpdate(dt);
@@ -71,8 +71,9 @@ void Scene_Xyrus::sRender()
 	}
 	drawLife();
 	drawBorder();
-	drawScore();
-	drawPercentage();
+	drawImmuneScore();
+	drawImmunePercentage();
+	drawTargetPercent();
 	drawTimer();
 
 
@@ -247,7 +248,7 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 			
 			auto ePos = e->getComponent<CTransform>().pos;
 			if (tempPos == ePos){
-				if(e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect"|| e->getComponent<CState>().state == "final"){
+				if(e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect"|| e->getComponent<CState>().state == "immune"){
 					SoundPlayer::getInstance().play("blocked", pos);
 				return;
 				}
@@ -291,7 +292,7 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 			auto overlap = Physics::getOverlap(_player, e);
 
 			if (overlap.x > 10 && overlap.y > 10) {				
-		
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
 				if (_entityManager.getEntities("life").size() > 0) {
 					_lives--;
 					_player->getComponent<CState>().state = "dead";
@@ -412,7 +413,7 @@ void Scene_Xyrus::sTeleport()
 				auto eGBpos = e->getComponent<CTransform>().pos;
 				if (pos.x >= (eGBpos.x-15.f) && pos.x < (eGBpos.x - 15.f) +eGB.x && pos.y >= (eGBpos.y - 15.f) && pos.y < (eGBpos.y - 15.f)+eGB.y ) {
 
-					if (e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect") {
+					if (e->getComponent<CState>().state != "none") {
 						SoundPlayer::getInstance().play("blocked", pos);
 						return;
 					}
@@ -426,8 +427,6 @@ void Scene_Xyrus::sTeleport()
 			continue;
 		}
 	}
-
-		
 }
 
 void Scene_Xyrus::sInfect()
@@ -450,12 +449,12 @@ void Scene_Xyrus::sInfectUpdate()
 	for (auto e : _entityManager.getEntities("Area")) {
 		if (e->getComponent<CState>().state == "preinfect" && e->getComponent<CAnimation>().animation.getName() == "empty") {
 			if(_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
-				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf2"));
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("preinfect"));
 		}
 
-		if (e->getComponent<CState>().state == "final" && e->getComponent<CAnimation>().animation.getName() == "empty") {
-			//if (_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
-				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf"));
+		if (e->getComponent<CState>().state == "immune" && e->getComponent<CAnimation>().animation.getName() == "empty") {
+			if (_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("immune"));
 		}
 	}
 }
@@ -468,18 +467,23 @@ void Scene_Xyrus::sFinalBlow()
 
 		if (eGB == pos) {
 			if (e->getComponent<CState>().state == "none") {
-				e->getComponent<CState>().state = "final";
-				SoundPlayer::getInstance().play("infect", pos);
+				e->getComponent<CState>().state = "immune";
+				SoundPlayer::getInstance().play("infect", pos);//need to change the sound
 			}
 		}
 	}
 }
 
-void Scene_Xyrus::sAreaFInalCheck(sf::Time dt) {
+void Scene_Xyrus::sAreaFinalCheck(sf::Time dt) {
+	static sf::Clock recheckTimer; 
+	if (recheckTimer.getElapsedTime().asMilliseconds() < 500) {
+		return; 
+	}
+	recheckTimer.restart();
 	for (auto e : _entityManager.getEntities("Area")) {
 		auto& posE = e->getComponent<CTransform>().pos;
 
-		if (e->getComponent<CState>().state == "final" && e->getComponent<CAnimation>().animation.getName() == "inf") {
+		if (e->getComponent<CState>().state == "immune" && e->getComponent<CAnimation>().animation.getName() == "immune") {
 
 			for (auto nE : _entityManager.getEntities("Area")) {
 				if (e == nE) {
@@ -490,17 +494,14 @@ void Scene_Xyrus::sAreaFInalCheck(sf::Time dt) {
 
 				if (((posE.y == posNE.y) && (posE.x - posNE.x == 30.f || posE.x - posNE.x == -30.f)) || ((posE.x == posNE.x) && (posE.y - posNE.y == 30.f || posE.y - posNE.y == -30.f))) {
 
-					if (nE->getComponent<CState>().state != "none") {
-
-						nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf"));
-						nE->getComponent<CState>().state = "final";
-				
+					if (nE->getComponent<CState>().state != "none" && nE->getComponent<CAnimation>().animation.getName() !="immune") {
+					
+						nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("immune"));
+						nE->getComponent<CState>().state = "immune";
 					}
-
 				}
 			}
 		}
-	
 	}
 }
 
@@ -511,12 +512,12 @@ void Scene_Xyrus::checkInfectionStatus(sf::Time dt)
 		auto& state = e->getComponent<CState>(); 
 		auto& animation = e->getComponent<CAnimation>();
 
-		if (state.state == "preinfect" && animation.animation.getName() == "inf2" && state.time != sf::Time::Zero) {
+		if (state.state == "preinfect" && animation.animation.getName() == "preinfect" && state.time != sf::Time::Zero) {
 			state.time -= dt;
 		}
 
-		if (state.state == "preinfect" && animation.animation.getName() == "inf2" && state.time <= sf::Time::Zero) {
-			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("inf3"));
+		if (state.state == "preinfect" && animation.animation.getName() == "preinfect" && state.time <= sf::Time::Zero) {
+			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("infected"));
 			e->getComponent<CState>().state = "infected";
 		}
 	}
@@ -589,6 +590,12 @@ void Scene_Xyrus::loadLevel(const std::string& path)
 			config >> bcf.S;
 
 		}
+
+		else if (token == "TARGET") {
+
+			config >> _targetPercentage;
+			
+		}
 		config >> token;
 	}
 
@@ -646,7 +653,7 @@ void Scene_Xyrus::checkWBCWBCCollision()
 				velE += impulse;
 				velNE -= impulse;
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
-
+				nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
 			}
 		}
 	}
@@ -661,7 +668,7 @@ void Scene_Xyrus::checkAreaWBCCollision()
 
 		for (auto nE : _entityManager.getEntities("Area")) {		
 			
-			if (nE->getComponent<CAnimation>().animation.getName() == "inf2") {
+			if (nE->getComponent<CAnimation>().animation.getName() == "preinfect") {
 				auto posNE = nE->getComponent<CTransform>().pos;
 
 
@@ -673,7 +680,7 @@ void Scene_Xyrus::checkAreaWBCCollision()
 				}
 			}
 				
-			if(nE->getComponent<CAnimation>().animation.getName() =="inf3"){
+			if(nE->getComponent<CAnimation>().animation.getName() =="infected" || nE->getComponent<CAnimation>().animation.getName() == "immune"){
 					auto velNE = nE->getComponent<CTransform>().vel;
 					auto posNE = nE->getComponent<CTransform>().pos;
 
@@ -724,7 +731,7 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	SoundPlayer::getInstance().removeStoppedSounds();
 
 	_entityManager.update();
-	_score = 0;
+	_immuneScore = 0;
 
 	auto tempPos = _player->getComponent<CTransform>().pos;
 	sSpawnWBC(dt);
@@ -735,11 +742,11 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	checkSlimeOutOfBounce();
 	sCollisions();
 	adjustPlayerPosition();
-	getScore();
-	_scoreTotal = _score;
+	getInfectedScore();
+	_scoreTotal = _immuneScore;
 	checkPlayerActive(dt, tempPos);
 	checkInfectionStatus(dt);
-	sAreaFInalCheck(dt);
+	sAreaFinalCheck(dt);
 	if(tempPos != _player->getComponent<CTransform>().pos)
 		sInfectUpdate();
 }
@@ -768,32 +775,32 @@ void Scene_Xyrus::sAnimation(sf::Time dt) {
 }
 
 
-void Scene_Xyrus::drawScore() {
+void Scene_Xyrus::drawImmuneScore() {
 
 
-	std::string str = std::to_string(_score);
-	sf::Text text = sf::Text("SCORE: " + str, Assets::getInstance().getFont("main"), 15);
+	std::string str = std::to_string(_immuneScore);
+	sf::Text text = sf::Text("IMMUNE: " + str, Assets::getInstance().getFont("main"), 15);
 
 	text.setPosition(10.f, 10.f);
 	_game->window().draw(text);
 
 }
 
-void Scene_Xyrus::getScore() {
+void Scene_Xyrus::getInfectedScore() {
 	for (auto e : _entityManager.getEntities("Area")) {
 
-		if(e->getComponent<CState>().state=="infected" || e->getComponent<CState>().state == "preinfect"){
-			_score++;
+		if(e->getComponent<CState>().state=="immune"){
+			_immuneScore++;
 
 		}
 	}
 }
 
-void Scene_Xyrus::drawPercentage() {
+void Scene_Xyrus::drawImmunePercentage() {
 	float score =0 ;
 	for (auto e : _entityManager.getEntities("Area")) {
 
-		if (e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect") {
+		if (e->getComponent<CState>().state == "immune") {
 			score++;
 
 		}
@@ -805,10 +812,25 @@ void Scene_Xyrus::drawPercentage() {
 	std::stringstream ss;
 	ss << std::fixed << std::setprecision(2) << percentage;
 	std::string str = ss.str();
-	sf::Text text = sf::Text("PERCENT COMPLETE: " + str + "%", Assets::getInstance().getFont("main"), 15);
+	sf::Text text = sf::Text("% IMMUNE: " + str + "%", Assets::getInstance().getFont("main"), 15);
 
 	text.setPosition(10.f, 30.f);
 	_game->window().draw(text);
+
+}
+
+void Scene_Xyrus::drawTargetPercent() {
+
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(0) << _targetPercentage;
+	std::string str = ss.str();
+	sf::Text percent = sf::Text( str + "%", Assets::getInstance().getFont("main"), 25);
+	sf::Text text = sf::Text("IMMUNE TARGET", Assets::getInstance().getFont("main"), 20);
+	
+	text.setPosition(230.f, 10.f);
+	percent.setPosition(280.f, 30.f);
+	_game->window().draw(text);
+	_game->window().draw(percent);
 
 }
 
