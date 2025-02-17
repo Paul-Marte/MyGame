@@ -14,7 +14,6 @@ Music gaeThemeOld         ../assets/Music/frogger.ogg
 # Textures
 Texture Background      ../assets/Textures/BlackRed.jpg
 Texture Menu		../assets/Textures/MenuBackground600.jpg
-Texture Title           ../assets/Textures/FroggerTitle.png
 Texture Entities        ../assets/Textures/xyrusCopy.png
 
 # Sprites
@@ -38,7 +37,7 @@ JSON                    ../assets/Textures/xyrusCopy.json
 #  Animation    Name            Texture     Speed   Repeats
 Animation       WBC        	Entities    1        no
 Animation       wbcol        	Entities    20       no
-Animation       xyspawn         Entities  40       yes
+Animation       xyspawn         Entities    40       yes
 Animation       xyup            Entities    30       no
 Animation       xydown          Entities    30       no
 Animation       xyleft          Entities    30       no
@@ -46,7 +45,8 @@ Animation       xyright         Entities    30       no
 Animation       slime		Entities    10       yes
 Animation       empty        	Entities    1        no
 Animation       infection      	Entities    1        no
-Animation       immune      	Entities    30       yes
+Animation       immune      	Entities    30       no
+Animation       immunization   	Entities    30       yes
 Animation       preinfect      	Entities    20       yes
 Animation       infected      	Entities    1        no
 
