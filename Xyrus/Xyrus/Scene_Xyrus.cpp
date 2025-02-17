@@ -49,7 +49,7 @@ void Scene_Xyrus::update(sf::Time dt)
 
 	if (_timer <= 0.f) {
 		//_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
-		//SoundPlayer::getInstance().play("death", _player->getComponent<CTransform>().pos);
+		
 		_lives--;
 		
 		_timer = _timerThreshold;
