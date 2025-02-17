@@ -73,7 +73,7 @@ void Scene_Menu::sRender()
 	sprite.setPosition(0.f, 0.f);
 
 	static const sf::Color selectedColor(255, 255, 255);
-	static const sf::Color normalColor(0, 180, 0);	
+	static const sf::Color normalColor(0, 255, 0);	
 
 	static const sf::Color backgroundColor(100, 100, 255);
 

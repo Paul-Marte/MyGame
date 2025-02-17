@@ -350,7 +350,8 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":34,"h":32},
 	"sourceSize": {"w":40,"h":40}
-},{
+},
+{
 	"filename": "immune (1).png",
 	"frame": {"x":1,"y":65,"w":30,"h":30},
 	"rotated": false,
@@ -407,6 +408,61 @@
 	"sourceSize": {"w":40,"h":40}
 },
 {
+	"filename": "immunization (1).png",
+	"frame": {"x":1,"y":65,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":7,"w":27,"h":26},
+	"sourceSize": {"w":40,"h":40}
+},
+{
+	"filename": "immunization (2).png",
+	"frame": {"x":33,"y":65,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":7,"w":27,"h":26},
+	"sourceSize": {"w":40,"h":40}
+},
+{
+	"filename": "immunization (3).png",
+	"frame": {"x":65,"y":65,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":7,"w":27,"h":26},
+	"sourceSize": {"w":40,"h":40}
+},
+{
+	"filename": "immunization (4).png",
+	"frame": {"x":97,"y":65,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":7,"w":27,"h":26},
+	"sourceSize": {"w":40,"h":40}
+},
+{
+	"filename": "immunization (5).png",
+	"frame": {"x":129,"y":65,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":7,"w":27,"h":26},
+	"sourceSize": {"w":40,"h":40}
+},
+{
+	"filename": "immunization (6).png",
+	"frame": {"x":161,"y":65,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":7,"w":27,"h":26},
+	"sourceSize": {"w":40,"h":40}
+},
+{
+	"filename": "immunization (7).png",
+	"frame": {"x":193,"y":65,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":7,"w":27,"h":26},
+	"sourceSize": {"w":40,"h":40}
+},{
 	"filename": "preinfect (1).png",
 	"frame": {"x":1,"y":1,"w":30,"h":30},
 	"rotated": false,

@@ -24,17 +24,16 @@ class Scene_Xyrus : public Scene {
 	int						_lives{ 5 };
 	int						_immuneScore{ 0 };
 	int						_scoreTotal{ 0 };
-	int						_scoredHeights[11] = {};
-	int						_winningScore{ 550 };
 
 	bool					_isFinish = false;
-	bool					_isComplete = false;
+	bool					_immunization = false;
+	bool					_immunizationDone = false;
 	bool                    _drawTextures{ true };
 	bool                    _drawAABB{ false };
 	bool                    _drawCam{ false };
-	float					_timer = 30.f;
+	float					_timer = 90.f;
 	float					_targetPercentage = 100.00f;
-	const float				_timerThreshold = 30.f;
+	const float				_timerThreshold = 90.f;
 
 	EnemyConfig                 _wbcConfig;
 	BulletConfig                _slimeConfig;
@@ -44,9 +43,34 @@ class Scene_Xyrus : public Scene {
 	void                    sMovement(sf::Time dt);
 	void                    sCollisions();
 	void                    sUpdate(sf::Time dt);
-	void	                onEnd() override;
+	void                    sTeleport();
+	void                    sInfect();
+	void                    sImmunization();
+	void					sKeepWBCInBounds();
 	void                    sSpawnWBC(sf::Time dt);
 	void					sAnimation(sf::Time dt);
+
+
+
+	// helper functions
+	void                    checkWBCWBCCollision();
+	void                    checkSlimeOutOfBounce();
+	void					checkAreaWBCCollision();
+	void                    checkPlayerWBCCollision();
+	void					checkPlayerActive(sf::Time dt, sf::Vector2f pos);
+	void					checkInfectionStatus(sf::Time dt);
+	void                    init(const std::string& path);
+	void                    loadLevel(const std::string& path);
+	void                    spawnPlayer(sf::Vector2f pos);
+	void                    playerMovement(sf::Time dt);
+	void                    adjustPlayerPosition();
+	void                    spawnWBC();
+	void                    spawnSlime(sf::Vector2f mPos);
+	void                    spawnArea();
+	void                    infectUpdate();
+	void                    immunizationCheck(sf::Time dt);
+	void					immunizationInit(sf::Time dt);
+	void	                registerActions();
 	void					drawImmuneScore();
 	void					getInfectedScore();
 	void					drawImmunePercentage();
@@ -57,32 +81,7 @@ class Scene_Xyrus : public Scene {
 	void					drawGameOver();
 	void					drawTimer();
 	void					drawWin();
-
-
-
-	// helper functions
-	void                    checkWBCWBCCollision();
-	void                    checkSlimeOutOfBounce();
-	void					checkAreaWBCCollision();
-	void					checkPlayerActive(sf::Time dt, sf::Vector2f pos);
-	void					checkInfectionStatus(sf::Time dt);
-	void                    init(const std::string& path);
-	void                    loadLevel(const std::string& path);
-	void                    spawnPlayer(sf::Vector2f pos);
-	void                    playerMovement(sf::Time dt);
-	void                    adjustPlayerPosition();
-	void                    spawnWBC();
-	void                    checkPlayerWBCCollision();
-	void                    spawnSlime(sf::Vector2f mPos);
-	void                    spawnArea();
-	void                    sTeleport();
-	void                    sInfect();
-	void                    sInfectUpdate();
-	void                    sFinalBlow();
-	void                    sAreaFinalCheck(sf::Time dt);
-	void	                registerActions();
-	void                    checkIfDead(sPtrEntt e);
-	void					sKeepWBCInBounds();
+	void	                onEnd() override;
 
 public:
 	Scene_Xyrus(GameEngine* gameEngine, const std::string& levelPath);
