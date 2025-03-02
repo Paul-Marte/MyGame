@@ -110,7 +110,7 @@ void Scene_Xyrus::sDoAction(const Command& command)
 	if (command.type() == "START") {
 		if (command.name() == "PAUSE") { setPaused(!_isPaused); }
 		else if (command.name() == "QUIT") { _game->quitLevel(); }
-		else if (command.name() == "BACK") { _game->backLevel(); }
+		else if (command.name() == "BACK") { _game->quitLevel(); }
 		else if (command.name() == "TOGGLE_TEXTURE") { _drawTextures = !_drawTextures; }
 		else if (command.name() == "TOGGLE_COLLISION") { _drawAABB = !_drawAABB; }
 		else if (command.name() == "TOGGLE_CAMOUTLINE") { _drawCam = !_drawCam; }
