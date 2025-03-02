@@ -97,6 +97,11 @@ void Scene_Xyrus::sRender()
 		}
 	}
 
+	if (_lives < 1) {
+		drawGameOver();
+		return;
+	}
+
 }
 
 void Scene_Xyrus::sDoAction(const Command& command)
@@ -200,8 +205,8 @@ void Scene_Xyrus::checkPlayerActive(sf::Time dt, sf::Vector2f pos)
 
 void Scene_Xyrus::playerMovement(sf::Time dt)
 {
-	//if (_player->getComponent<CAnimation>().animation.getName() == "die" || _isFinish || _lives < 1)
-	//	return;
+	if (_player->getComponent<CAnimation>().animation.getName() == "die" || _isFinish || _lives < 1)
+	return;
 
 	if (_immunization)
 		return;
@@ -887,7 +892,20 @@ void Scene_Xyrus::drawTargetPercent() {
 
 }
 
-void Scene_Xyrus::drawGameOver() {}
+void Scene_Xyrus::drawGameOver() {
+	std::string str = "GAME OVER";
+	sf::Text text = sf::Text(str, Assets::getInstance().getFont("Arial"), 60);
+	centerOrigin(text);
+	text.setPosition(315.f, 300.f);
+	_game->window().draw(text);
+
+	std::string strEsc = "Press ESC";
+	sf::Text textEsc = sf::Text(strEsc, Assets::getInstance().getFont("Arial"), 40);
+	centerOrigin(textEsc);
+	textEsc.setPosition(315.f, 340.f);
+	_game->window().draw(textEsc);
+
+}
 
 void Scene_Xyrus::drawTimer()
 {

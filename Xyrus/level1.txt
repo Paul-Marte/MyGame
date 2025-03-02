@@ -4,8 +4,8 @@ World 630 630
 
 Bkg Background 0 30
 
-WBC 32  100  150
+WBC 32  70  120
 
 SLIME 300  
 
-TARGET 40
+TARGET 30
