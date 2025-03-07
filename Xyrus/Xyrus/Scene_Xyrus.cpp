@@ -44,7 +44,7 @@ void Scene_Xyrus::init(const std::string& levelPath) {
 
 void Scene_Xyrus::update(sf::Time dt)
 {
-	if (_lives > 0 && !_isFinish)
+	if (_lives > 0 && !_isFinish && !_immunization)
 		_timer -= dt.asSeconds();
 
 	if (_timer <= 0.f) {
