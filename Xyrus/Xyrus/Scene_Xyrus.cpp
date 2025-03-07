@@ -506,6 +506,7 @@ void Scene_Xyrus::sImmunization()
 void Scene_Xyrus::immunizationInit(sf::Time dt)
 {
 	auto& pos = _player->getComponent<CTransform>().pos;
+
 	
 	for (auto e : _entityManager.getEntities("Area")) {
 		auto eGB = e->getComponent<CTransform>().pos;
@@ -513,7 +514,8 @@ void Scene_Xyrus::immunizationInit(sf::Time dt)
 		if (e->getComponent<CState>().state == "immunization" && pos != eGB && e->getComponent<CAnimation>().animation.getName() != "immunization") {
 			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("immunization"));
 			_immunization = true;
-			
+			_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyspawn"));
+			_player->getComponent<CState>().state = "done";
 		}	
 
 		if (e->getComponent<CState>().state == "immunization" && pos != eGB && e->getComponent<CAnimation>().animation.getName() == "immunization" && e->getComponent<CState>().time > sf::Time::Zero) {
@@ -525,6 +527,7 @@ void Scene_Xyrus::immunizationInit(sf::Time dt)
 			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("immune"));
 			e->getComponent<CState>().state = "immune";
 			_immunizationInitDone = true;
+		
 		}
 	}
 
