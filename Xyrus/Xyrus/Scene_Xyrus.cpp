@@ -44,7 +44,7 @@ void Scene_Xyrus::init(const std::string& levelPath) {
 
 void Scene_Xyrus::update(sf::Time dt)
 {
-	if (_lives > 0 && !_isFinish)
+	if (_lives > 0 && !_isFinish && !_immunization)
 		_timer -= dt.asSeconds();
 
 	if (_timer <= 0.f) {
@@ -97,6 +97,16 @@ void Scene_Xyrus::sRender()
 		}
 	}
 
+	if (_immunizationCheckDone) {
+		drawWin();
+		return;
+	}
+
+	if (_lives < 1) {
+		drawGameOver();
+		return;
+	}
+
 }
 
 void Scene_Xyrus::sDoAction(const Command& command)
@@ -105,7 +115,6 @@ void Scene_Xyrus::sDoAction(const Command& command)
 	if (command.type() == "START") {
 		if (command.name() == "PAUSE") { setPaused(!_isPaused); }
 		else if (command.name() == "QUIT") { _game->quitLevel(); }
-		else if (command.name() == "BACK") { _game->backLevel(); }
 		else if (command.name() == "TOGGLE_TEXTURE") { _drawTextures = !_drawTextures; }
 		else if (command.name() == "TOGGLE_COLLISION") { _drawAABB = !_drawAABB; }
 		else if (command.name() == "TOGGLE_CAMOUTLINE") { _drawCam = !_drawCam; }
@@ -138,8 +147,7 @@ void Scene_Xyrus::registerActions()
 
 
 	registerAction(sf::Keyboard::P, "PAUSE");
-	registerAction(sf::Keyboard::Escape, "BACK");
-	registerAction(sf::Keyboard::Q, "QUIT");
+	registerAction(sf::Keyboard::Escape, "QUIT");
 
 	registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");
 	registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");
@@ -200,8 +208,8 @@ void Scene_Xyrus::checkPlayerActive(sf::Time dt, sf::Vector2f pos)
 
 void Scene_Xyrus::playerMovement(sf::Time dt)
 {
-	//if (_player->getComponent<CAnimation>().animation.getName() == "die" || _isFinish || _lives < 1)
-	//	return;
+	if (_player->getComponent<CAnimation>().animation.getName() == "die" || _isFinish || _lives < 1)
+	return;
 
 	if (_immunization)
 		return;
@@ -302,6 +310,7 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 					_lives--;
 					_player->getComponent<CState>().state = "dead";
 					_player->destroy();
+					_timer = _timerThreshold;
 
 					sf::Vector2f collisionNormal = normalize(pos - posE);
 
@@ -497,6 +506,7 @@ void Scene_Xyrus::sImmunization()
 void Scene_Xyrus::immunizationInit(sf::Time dt)
 {
 	auto& pos = _player->getComponent<CTransform>().pos;
+
 	
 	for (auto e : _entityManager.getEntities("Area")) {
 		auto eGB = e->getComponent<CTransform>().pos;
@@ -504,7 +514,8 @@ void Scene_Xyrus::immunizationInit(sf::Time dt)
 		if (e->getComponent<CState>().state == "immunization" && pos != eGB && e->getComponent<CAnimation>().animation.getName() != "immunization") {
 			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("immunization"));
 			_immunization = true;
-			
+			_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyspawn"));
+			_player->getComponent<CState>().state = "done";
 		}	
 
 		if (e->getComponent<CState>().state == "immunization" && pos != eGB && e->getComponent<CAnimation>().animation.getName() == "immunization" && e->getComponent<CState>().time > sf::Time::Zero) {
@@ -515,7 +526,8 @@ void Scene_Xyrus::immunizationInit(sf::Time dt)
 		if (e->getComponent<CState>().state == "immunization" && pos != eGB && e->getComponent<CAnimation>().animation.getName() == "immunization" && e->getComponent<CState>().time <= sf::Time::Zero) {
 			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("immune"));
 			e->getComponent<CState>().state = "immune";
-			_immunizationDone = true;
+			_immunizationInitDone = true;
+		
 		}
 	}
 
@@ -553,6 +565,8 @@ void Scene_Xyrus::immunizationCheck(sf::Time dt) {
 			}
 		}
 	}
+	_immunizationCheckDone = true;
+	
 
 }
 
@@ -575,6 +589,7 @@ void Scene_Xyrus::checkInfectionStatus(sf::Time dt)
 	
 	
 }
+
 
 void Scene_Xyrus::sSpawnWBC(sf::Time dt)
 {
@@ -799,7 +814,12 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	checkPlayerActive(dt, tempPos);
 	checkInfectionStatus(dt);
 	immunizationInit(dt);
-	immunizationCheck(dt);
+	if(_immunizationInitDone)
+		immunizationCheck(dt);
+
+	if (_immunizationCheckDone)
+		checkWinLoss();
+	
 	if(tempPos != _player->getComponent<CTransform>().pos)
 		infectUpdate();
 }
@@ -859,11 +879,11 @@ void Scene_Xyrus::drawImmunePercentage() {
 		}
 	}
 	
-	float percentage = (score / 399.0f) * 100.f;
+	_immunePercentage = (score / 399.0f) * 100.f;
 
 
 	std::stringstream ss;
-	ss << std::fixed << std::setprecision(2) << percentage;
+	ss << std::fixed << std::setprecision(2) << _immunePercentage;
 	std::string str = ss.str();
 	sf::Text text = sf::Text("% IMMUNE: " + str + "%", Assets::getInstance().getFont("main"), 15);
 
@@ -887,7 +907,26 @@ void Scene_Xyrus::drawTargetPercent() {
 
 }
 
-void Scene_Xyrus::drawGameOver() {}
+void Scene_Xyrus::checkWinLoss()
+{
+	if (_immunePercentage > _targetPercentage)
+		_win = true;
+}
+
+void Scene_Xyrus::drawGameOver() {
+	std::string str = "GAME OVER";
+	sf::Text text = sf::Text(str, Assets::getInstance().getFont("Arial"), 60);
+	centerOrigin(text);
+	text.setPosition(315.f, 300.f);
+	_game->window().draw(text);
+
+	std::string strEsc = "Press ESC";
+	sf::Text textEsc = sf::Text(strEsc, Assets::getInstance().getFont("Arial"), 40);
+	centerOrigin(textEsc);
+	textEsc.setPosition(315.f, 340.f);
+	_game->window().draw(textEsc);
+
+}
 
 void Scene_Xyrus::drawTimer()
 {
@@ -898,7 +937,25 @@ void Scene_Xyrus::drawTimer()
 	_game->window().draw(text);
 }
 
-void Scene_Xyrus::drawWin() {}
+void Scene_Xyrus::drawWin() {
+	std::string str;
+
+	if(_win)
+		str = "YOU WIN!";
+	else
+		str = "YOU LOSE!";
+
+	sf::Text text = sf::Text(str, Assets::getInstance().getFont("Arial"), 60);
+	centerOrigin(text);
+	text.setPosition(315.f, 300.f);
+	_game->window().draw(text);
+
+	std::string strEsc = "Press ESC";
+	sf::Text textEsc = sf::Text(strEsc, Assets::getInstance().getFont("Arial"), 40);
+	centerOrigin(textEsc);
+	textEsc.setPosition(315.f, 340.f);
+	_game->window().draw(textEsc);
+}
 
 
 
