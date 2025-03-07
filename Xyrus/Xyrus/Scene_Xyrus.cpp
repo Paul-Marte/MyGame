@@ -310,7 +310,7 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 					_lives--;
 					_player->getComponent<CState>().state = "dead";
 					_player->destroy();
-
+					_timer = _timerThreshold;
 
 					sf::Vector2f collisionNormal = normalize(pos - posE);
 
