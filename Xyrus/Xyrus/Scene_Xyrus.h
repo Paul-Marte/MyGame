@@ -27,12 +27,15 @@ class Scene_Xyrus : public Scene {
 
 	bool					_isFinish = false;
 	bool					_immunization = false;
-	bool					_immunizationDone = false;
+	bool					_immunizationInitDone = false;
+	bool					_immunizationCheckDone = false;
+	bool					_win = false;
 	bool                    _drawTextures{ true };
 	bool                    _drawAABB{ false };
 	bool                    _drawCam{ false };
-	float					_timer = 90.f;
 	float					_targetPercentage = 100.00f;
+	float					_immunePercentage = 0.f;
+	float					_timer = 90.f;
 	const float				_timerThreshold = 90.f;
 
 	EnemyConfig                 _wbcConfig;
@@ -59,6 +62,7 @@ class Scene_Xyrus : public Scene {
 	void                    checkPlayerWBCCollision();
 	void					checkPlayerActive(sf::Time dt, sf::Vector2f pos);
 	void					checkInfectionStatus(sf::Time dt);
+	void					checkWinLoss();
 	void                    init(const std::string& path);
 	void                    loadLevel(const std::string& path);
 	void                    spawnPlayer(sf::Vector2f pos);
