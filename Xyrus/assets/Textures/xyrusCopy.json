@@ -602,6 +602,30 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":34,"h":32},
 	"sourceSize": {"w":40,"h":40}
+},
+{
+	"filename": "win.png",
+	"frame": {"x":0,"y":532,"w":302,"h":116},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":34,"h":32},
+	"sourceSize": {"w":40,"h":40}
+},
+{
+	"filename": "lose.png",
+	"frame": {"x":0,"y":684,"w":319,"h":119},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":34,"h":32},
+	"sourceSize": {"w":40,"h":40}
+},
+{
+	"filename": "gameover.png",
+	"frame": {"x":0,"y":874,"w":384,"h":119},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":34,"h":32},
+	"sourceSize": {"w":40,"h":40}
 }
 ],
 "meta": {

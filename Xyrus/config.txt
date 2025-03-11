@@ -49,6 +49,9 @@ Animation       immune      	Entities    30       no
 Animation       immunization   	Entities    30       yes
 Animation       preinfect      	Entities    20       yes
 Animation       infected      	Entities    1        no
+Animation       win      	Entities    1        no
+Animation       lose      	Entities    1        no
+Animation       gameover      	Entities    1        no
 
 Animation       die             Entities    8        no
 

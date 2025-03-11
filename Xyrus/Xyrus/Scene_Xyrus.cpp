@@ -39,6 +39,8 @@ void Scene_Xyrus::init(const std::string& levelPath) {
 	spawnLife();
 	MusicPlayer::getInstance().play("gameTheme");
 	MusicPlayer::getInstance().setVolume(100);
+
+	
 }
 
 
@@ -76,7 +78,7 @@ void Scene_Xyrus::sRender()
 	drawTimer();
 
 	for (auto& e : _entityManager.getEntities()) {
-		if (e->getTag() == "BKG")
+		if (e->getTag() == "BKG" || e->getTag() == "GameOver" || e->getTag() == "WinLose")
 			continue;
 
 		auto& anim = e->getComponent<CAnimation>().animation;
@@ -914,17 +916,16 @@ void Scene_Xyrus::checkWinLoss()
 }
 
 void Scene_Xyrus::drawGameOver() {
-	std::string str = "GAME OVER";
-	sf::Text text = sf::Text(str, Assets::getInstance().getFont("Arial"), 60);
-	centerOrigin(text);
-	text.setPosition(315.f, 300.f);
-	_game->window().draw(text);
 
-	std::string strEsc = "Press ESC";
-	sf::Text textEsc = sf::Text(strEsc, Assets::getInstance().getFont("Arial"), 40);
-	centerOrigin(textEsc);
-	textEsc.setPosition(315.f, 340.f);
-	_game->window().draw(textEsc);
+	sf::Vector2f  pos{ 315.f, 300.f };
+	auto message = _entityManager.addEntity("GameOver");
+	
+	message->addComponent<CTransform>(pos);
+	message->addComponent<CAnimation>(Assets::getInstance().getAnimation("gameover"));
+	auto& anim = message->getComponent<CAnimation>().animation;
+	auto& tfm = message->getComponent<CTransform>();
+	anim.getSprite().setPosition(tfm.pos);
+	_game->window().draw(anim.getSprite());
 
 }
 
@@ -938,14 +939,29 @@ void Scene_Xyrus::drawTimer()
 }
 
 void Scene_Xyrus::drawWin() {
-	std::string str;
+	std::string message;
 
 	if(_win)
-		str = "YOU WIN!";
+		message = "win";
 	else
-		str = "YOU LOSE!";
+		message = "lose";
 
-	sf::Text text = sf::Text(str, Assets::getInstance().getFont("Arial"), 60);
+
+
+	sf::Vector2f  pos{ 315.f, 300.f };
+	auto displayMessage = _entityManager.addEntity("WinLose");
+
+	displayMessage->addComponent<CTransform>(pos);
+	displayMessage->addComponent<CAnimation>(Assets::getInstance().getAnimation(message));
+	auto& anim = displayMessage->getComponent<CAnimation>().animation;
+	auto& tfm = displayMessage->getComponent<CTransform>();
+	anim.getSprite().setPosition(tfm.pos);
+	_game->window().draw(anim.getSprite());
+
+
+
+
+	/*sf::Text text = sf::Text(str, Assets::getInstance().getFont("Arial"), 60);
 	centerOrigin(text);
 	text.setPosition(315.f, 300.f);
 	_game->window().draw(text);
@@ -954,7 +970,9 @@ void Scene_Xyrus::drawWin() {
 	sf::Text textEsc = sf::Text(strEsc, Assets::getInstance().getFont("Arial"), 40);
 	centerOrigin(textEsc);
 	textEsc.setPosition(315.f, 340.f);
-	_game->window().draw(textEsc);
+	_game->window().draw(textEsc);*/
+
+
 }
 
 

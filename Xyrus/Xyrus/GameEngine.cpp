@@ -29,6 +29,11 @@ void GameEngine::init(const std::string& path)
 	_statisticsText.setPosition(15.0f, 5.0f);
 	_statisticsText.setCharacterSize(15);
 
+
+	sf::Cursor cursor;
+	if (cursor.loadFromSystem(sf::Cursor::Hand))
+		_window.setMouseCursor(cursor);
+
 	changeScene("MENU", std::make_shared<Scene_Menu>(this));
 }
 
