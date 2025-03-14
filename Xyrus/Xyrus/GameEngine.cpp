@@ -31,7 +31,7 @@ void GameEngine::init(const std::string& path)
 
 
 	sf::Cursor cursor;
-	if (cursor.loadFromSystem(sf::Cursor::Hand))
+	cursor.loadFromSystem(sf::Cursor::Cross);
 		_window.setMouseCursor(cursor);
 
 	changeScene("MENU", std::make_shared<Scene_Menu>(this));

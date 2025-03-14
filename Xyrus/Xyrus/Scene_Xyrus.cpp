@@ -958,21 +958,6 @@ void Scene_Xyrus::drawWin() {
 	anim.getSprite().setPosition(tfm.pos);
 	_game->window().draw(anim.getSprite());
 
-
-
-
-	/*sf::Text text = sf::Text(str, Assets::getInstance().getFont("Arial"), 60);
-	centerOrigin(text);
-	text.setPosition(315.f, 300.f);
-	_game->window().draw(text);
-
-	std::string strEsc = "Press ESC";
-	sf::Text textEsc = sf::Text(strEsc, Assets::getInstance().getFont("Arial"), 40);
-	centerOrigin(textEsc);
-	textEsc.setPosition(315.f, 340.f);
-	_game->window().draw(textEsc);*/
-
-
 }
 
 
