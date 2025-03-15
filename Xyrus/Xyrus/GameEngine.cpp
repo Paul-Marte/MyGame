@@ -23,7 +23,7 @@ void GameEngine::init(const std::string& path)
 	loadConfigFromFile(path, width, height);
 
 
-	_window.create(sf::VideoMode(width, height), "XYRUS, Your Friendly Virus");
+	_window.create(sf::VideoMode(width, height), "XYRUS, Your Friendly Virus", sf::Style::Titlebar | sf::Style::Close);
 
 	_statisticsText.setFont(Assets::getInstance().getFont("Arcade"));
 	_statisticsText.setPosition(15.0f, 5.0f);
