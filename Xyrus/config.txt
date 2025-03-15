@@ -56,3 +56,5 @@ Animation       gameover      	Entities    1        no
 Animation       die             Entities    8        no
 
 Animation       lives           Entities    1        no
+
+Animation       smallCircle           Entities    1        no

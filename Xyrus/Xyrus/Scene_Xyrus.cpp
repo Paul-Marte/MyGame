@@ -32,7 +32,7 @@ Scene_Xyrus::Scene_Xyrus(GameEngine* gameEngine, const std::string& levelPath)
 void Scene_Xyrus::init(const std::string& levelPath) {
 	loadLevel(levelPath);
 	registerActions();
-	
+
 	sf::Vector2f spawnPos{ static_cast<float>(_game->windowSize().x) / 2.f, static_cast<float>(_game->windowSize().y) / 2.f };
 	spawnArea();
 	spawnPlayer(spawnPos);
@@ -40,7 +40,7 @@ void Scene_Xyrus::init(const std::string& levelPath) {
 	MusicPlayer::getInstance().play("gameTheme");
 	MusicPlayer::getInstance().setVolume(100);
 
-	
+
 }
 
 
@@ -51,13 +51,13 @@ void Scene_Xyrus::update(sf::Time dt)
 
 	if (_timer <= 0.f) {
 		//_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
-		
+
 		_lives--;
-		
+
 		_timer = _timerThreshold;
 		_player->destroy();
 	}
-	
+
 	sUpdate(dt);
 }
 
@@ -65,8 +65,8 @@ void Scene_Xyrus::update(sf::Time dt)
 
 void Scene_Xyrus::sRender()
 {
-	_game->window().clear();	
-	
+	_game->window().clear();
+
 	for (auto& e : _entityManager.getEntities("BKG")) {
 		_game->window().draw(e->getComponent<CSprite>().sprite);
 	}
@@ -188,7 +188,7 @@ void Scene_Xyrus::spawnPlayer(sf::Vector2f pos)
 
 void Scene_Xyrus::checkPlayerActive(sf::Time dt, sf::Vector2f pos)
 {
-	
+
 
 	if (_entityManager.getEntities("player").size() > 0) {
 		if (_player->getComponent<CState>().state == "spawn") {
@@ -203,15 +203,15 @@ void Scene_Xyrus::checkPlayerActive(sf::Time dt, sf::Vector2f pos)
 	}
 
 	_player->getComponent<CState>().time -= dt;
-	
-	
-	
+
+
+
 }
 
 void Scene_Xyrus::playerMovement(sf::Time dt)
 {
 	if (_player->getComponent<CAnimation>().animation.getName() == "die" || _isFinish || _lives < 1)
-	return;
+		return;
 
 	if (_immunization)
 		return;
@@ -224,7 +224,7 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 		pv.y -= 30.f;
 
 		if (_player->getComponent<CState>().state == "active")
-		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyup"));
+			_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyup"));
 
 		_player->getComponent<CInput>().dir = 0;
 	}
@@ -232,7 +232,7 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 		pv.y += 30.f;
 
 		if (_player->getComponent<CState>().state == "active")
-		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xydown"));
+			_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xydown"));
 
 		_player->getComponent<CInput>().dir = 0;
 	}
@@ -240,15 +240,15 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 		pv.x -= 30.f;
 
 		if (_player->getComponent<CState>().state == "active")
-		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyleft"));
+			_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyleft"));
 
 		_player->getComponent<CInput>().dir = 0;
 	}
 	if (_player->getComponent<CInput>().dir == 8) {
 		pv.x += 30.f;
-		
+
 		if (_player->getComponent<CState>().state == "active")
-		_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyright"));
+			_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyright"));
 
 		_player->getComponent<CInput>().dir = 0;
 	}
@@ -256,18 +256,18 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 	if (pv != sf::Vector2f(0, 0)) {
 		auto tempPos = pos + pv;
 		for (auto e : _entityManager.getEntities("Area")) {
-			
+
 			auto ePos = e->getComponent<CTransform>().pos;
-			if (tempPos == ePos){
-				if(e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect"|| e->getComponent<CState>().state == "immune"){
+			if (tempPos == ePos) {
+				if (e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect" || e->getComponent<CState>().state == "immune") {
 					SoundPlayer::getInstance().play("blocked", pos);
-				return;
+					return;
 				}
 			}
 		}
 		SoundPlayer::getInstance().play("hop", pos);
 		pos += pv;
-	
+
 	}
 
 }
@@ -286,8 +286,8 @@ void Scene_Xyrus::adjustPlayerPosition()
 		player_pos.x = _game->windowSize().x - playerHalfSize.x;
 	}
 
-	if (player_pos.y < playerHalfSize.y+60.f) {
-		player_pos.y = playerHalfSize.y+60.f;
+	if (player_pos.y < playerHalfSize.y + 60.f) {
+		player_pos.y = playerHalfSize.y + 60.f;
 	}
 
 	if (player_pos.y > _game->windowSize().y - playerHalfSize.y) {
@@ -297,16 +297,16 @@ void Scene_Xyrus::adjustPlayerPosition()
 
 void Scene_Xyrus::checkPlayerWBCCollision()
 {
-	if(_player->getComponent<CState>().state == "active"){
-	auto& pos = _player->getComponent<CTransform>().pos;
-	auto& vel = _player->getComponent<CTransform>().vel;
-	for (auto e : _entityManager.getEntities("WBC")) {
+	if (_player->getComponent<CState>().state == "active") {
+		auto& pos = _player->getComponent<CTransform>().pos;
+		auto& vel = _player->getComponent<CTransform>().vel;
+		for (auto e : _entityManager.getEntities("WBC")) {
 			auto overlap = Physics::getOverlap(_player, e);
 			auto& velE = e->getComponent<CTransform>().vel;
 			auto& posE = e->getComponent<CTransform>().pos;
 
 
-			if (overlap.x > 10 && overlap.y > 10) {				
+			if (overlap.x > 10 && overlap.y > 10) {
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
 				if (_entityManager.getEntities("life").size() > 0) {
 					_lives--;
@@ -319,7 +319,7 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 					sf::Vector2f relativeVelocity = vel - velE;
 
 					float velocityAlongNormal = relativeVelocity.x * collisionNormal.x + relativeVelocity.y * collisionNormal.y;
-					
+
 					if (velocityAlongNormal > 0) {
 						continue;
 					}
@@ -328,7 +328,7 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 					velE -= impulse;
 
 					return;
-				}		
+				}
 			}
 		}
 	}
@@ -341,7 +341,7 @@ void Scene_Xyrus::spawnWBC()
 		view.getCenter().x - view.getSize().x / 2.f,
 		view.getCenter().y - view.getSize().y / 2.f + 60.f,
 		view.getSize().x,
-		view.getSize().y-60.f
+		view.getSize().y - 60.f
 	);
 
 	auto bounds = getViewBounds;
@@ -379,7 +379,7 @@ void Scene_Xyrus::sKeepWBCInBounds()
 
 			}
 
-			if ((pos.y < height / 2+60.f) || (pos.y > _game->windowSize().y - height / 2))
+			if ((pos.y < height / 2 + 60.f) || (pos.y > _game->windowSize().y - height / 2))
 			{
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
 				vel.y *= -1;
@@ -420,12 +420,12 @@ void Scene_Xyrus::spawnArea()
 		for (int c{ 2 }; c < windowHeight / blH; c++) {
 
 			auto e = _entityManager.addEntity("Area");
-			sf::Vector2f  pos{ static_cast<float>(r*blW+15.f), static_cast<float>(c*blH+15.f) };
+			sf::Vector2f  pos{ static_cast<float>(r * blW + 15.f), static_cast<float>(c * blH + 15.f) };
 			e->addComponent<CTransform>(pos);
 			e->addComponent<CState>().state = "none";
 			auto bb = e->addComponent<CAnimation>(Assets::getInstance().getAnimation("empty")).animation.getBB();
 			e->addComponent<CBoundingBox>(bb);
-					
+
 		}
 	}
 
@@ -441,7 +441,7 @@ void Scene_Xyrus::sTeleport()
 			for (auto e : _entityManager.getEntities("Area")) {
 				auto eGB = e->getComponent<CAnimation>().animation.getSprite().getTextureRect().getSize();
 				auto eGBpos = e->getComponent<CTransform>().pos;
-				if (pos.x >= (eGBpos.x-15.f) && pos.x < (eGBpos.x - 15.f) +eGB.x && pos.y >= (eGBpos.y - 15.f) && pos.y < (eGBpos.y - 15.f)+eGB.y ) {
+				if (pos.x >= (eGBpos.x - 15.f) && pos.x < (eGBpos.x - 15.f) + eGB.x && pos.y >= (eGBpos.y - 15.f) && pos.y < (eGBpos.y - 15.f) + eGB.y) {
 
 					if (e->getComponent<CState>().state != "none") {
 						SoundPlayer::getInstance().play("blocked", pos);
@@ -466,7 +466,7 @@ void Scene_Xyrus::sInfect()
 		auto eGB = e->getComponent<CTransform>().pos;
 
 		if (eGB == pos) {
-			if(e->getComponent<CState>().state =="none"){
+			if (e->getComponent<CState>().state == "none") {
 				e->getComponent<CState>().state = "preinfect";
 				SoundPlayer::getInstance().play("infect", pos);
 			}
@@ -478,7 +478,7 @@ void Scene_Xyrus::infectUpdate()
 {
 	for (auto e : _entityManager.getEntities("Area")) {
 		if (e->getComponent<CState>().state == "preinfect" && e->getComponent<CAnimation>().animation.getName() == "empty") {
-			if(_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
+			if (_player->getComponent<CTransform>().pos != e->getComponent<CTransform>().pos)
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("preinfect"));
 		}
 
@@ -509,19 +509,19 @@ void Scene_Xyrus::immunizationInit(sf::Time dt)
 {
 	auto& pos = _player->getComponent<CTransform>().pos;
 
-	
+
 	for (auto e : _entityManager.getEntities("Area")) {
 		auto eGB = e->getComponent<CTransform>().pos;
-		
+
 		if (e->getComponent<CState>().state == "immunization" && pos != eGB && e->getComponent<CAnimation>().animation.getName() != "immunization") {
 			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("immunization"));
 			_immunization = true;
 			_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("xyspawn"));
 			_player->getComponent<CState>().state = "done";
-		}	
+		}
 
 		if (e->getComponent<CState>().state == "immunization" && pos != eGB && e->getComponent<CAnimation>().animation.getName() == "immunization" && e->getComponent<CState>().time > sf::Time::Zero) {
-		
+
 			e->getComponent<CState>().time -= dt;
 		}
 
@@ -529,7 +529,7 @@ void Scene_Xyrus::immunizationInit(sf::Time dt)
 			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("immune"));
 			e->getComponent<CState>().state = "immune";
 			_immunizationInitDone = true;
-		
+
 		}
 	}
 
@@ -538,10 +538,10 @@ void Scene_Xyrus::immunizationInit(sf::Time dt)
 void Scene_Xyrus::immunizationCheck(sf::Time dt) {
 	static sf::Clock immunizationCheckTimer;
 	if (immunizationCheckTimer.getElapsedTime().asMilliseconds() < 100) {
-		return; 
+		return;
 	}
 	immunizationCheckTimer.restart();
-	
+
 
 	for (auto e : _entityManager.getEntities("Area")) {
 		auto& posE = e->getComponent<CTransform>().pos;
@@ -557,7 +557,7 @@ void Scene_Xyrus::immunizationCheck(sf::Time dt) {
 
 				if (((posE.y == posNE.y) && (posE.x - posNE.x == 30.f || posE.x - posNE.x == -30.f)) || ((posE.x == posNE.x) && (posE.y - posNE.y == 30.f || posE.y - posNE.y == -30.f))) {
 
-					if (nE->getComponent<CState>().state != "none" && nE->getComponent<CAnimation>().animation.getName() !="immune") {
+					if (nE->getComponent<CState>().state != "none" && nE->getComponent<CAnimation>().animation.getName() != "immune") {
 						nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("immune"));
 						nE->getComponent<CState>().state = "immune";
 
@@ -568,7 +568,7 @@ void Scene_Xyrus::immunizationCheck(sf::Time dt) {
 		}
 	}
 	_immunizationCheckDone = true;
-	
+
 
 }
 
@@ -576,7 +576,7 @@ void Scene_Xyrus::immunizationCheck(sf::Time dt) {
 void Scene_Xyrus::checkInfectionStatus(sf::Time dt)
 {
 	for (auto e : _entityManager.getEntities("Area")) {
-		auto& state = e->getComponent<CState>(); 
+		auto& state = e->getComponent<CState>();
 		auto& animation = e->getComponent<CAnimation>();
 
 		if (state.state == "preinfect" && animation.animation.getName() == "preinfect" && state.time != sf::Time::Zero) {
@@ -588,8 +588,8 @@ void Scene_Xyrus::checkInfectionStatus(sf::Time dt)
 			e->getComponent<CState>().state = "infected";
 		}
 	}
-	
-	
+
+
 }
 
 
@@ -626,12 +626,12 @@ void Scene_Xyrus::loadLevel(const std::string& path)
 		if (token == "Bkg") {
 			std::string name;
 			sf::Vector2f pos;
-			config >> name >> pos.x >> pos.y;		
+			config >> name >> pos.x >> pos.y;
 
 			auto e = _entityManager.addEntity("BKG");
 			e->addComponent<CTransform>(pos);
 			auto& sprite = e->addComponent<CSprite>(Assets::getInstance().getTexture(name)).sprite;
-					
+
 			sprite.setOrigin(0.f, 0.f);
 			sprite.setPosition(0.f, 0.f);
 
@@ -662,7 +662,7 @@ void Scene_Xyrus::loadLevel(const std::string& path)
 		else if (token == "TARGET") {
 
 			config >> _targetPercentage;
-			
+
 		}
 		config >> token;
 	}
@@ -734,43 +734,43 @@ void Scene_Xyrus::checkAreaWBCCollision()
 		auto& velE = e->getComponent<CTransform>().vel;
 		auto& posE = e->getComponent<CTransform>().pos;
 
-		for (auto nE : _entityManager.getEntities("Area")) {		
-			
+		for (auto nE : _entityManager.getEntities("Area")) {
+
 			if (nE->getComponent<CAnimation>().animation.getName() == "preinfect") {
 				auto posNE = nE->getComponent<CTransform>().pos;
 
 
 				if (dist(posE, posNE) < e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width - 10.f) {
-
+					spawnSmallShapes(posNE);
 					nE->getComponent<CState>().state = "none";
 					nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("empty"));
 
 				}
 			}
-				
-			if(nE->getComponent<CAnimation>().animation.getName() =="infected" || nE->getComponent<CAnimation>().animation.getName() == "immune"){
-					auto velNE = nE->getComponent<CTransform>().vel;
-					auto posNE = nE->getComponent<CTransform>().pos;
+
+			if (nE->getComponent<CAnimation>().animation.getName() == "infected" || nE->getComponent<CAnimation>().animation.getName() == "immune") {
+				auto velNE = nE->getComponent<CTransform>().vel;
+				auto posNE = nE->getComponent<CTransform>().pos;
 
 
-					if (dist(posE, posNE) < e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width - 10.f) {
+				if (dist(posE, posNE) < e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width - 10.f) {
 
-						sf::Vector2f collisionNormal = normalize(posE - posNE);
+					sf::Vector2f collisionNormal = normalize(posE - posNE);
 
-						sf::Vector2f relativeVelocity = velE - velNE;
+					sf::Vector2f relativeVelocity = velE - velNE;
 
-						float velocityAlongNormal = relativeVelocity.x * collisionNormal.x + relativeVelocity.y * collisionNormal.y;
+					float velocityAlongNormal = relativeVelocity.x * collisionNormal.x + relativeVelocity.y * collisionNormal.y;
 
-						if (velocityAlongNormal > 0) {
-							continue;
-						}
-
-						sf::Vector2f impulse = collisionNormal * (-2.0f * velocityAlongNormal);
-						velE += impulse;
-						
-						e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
-
+					if (velocityAlongNormal > 0) {
+						continue;
 					}
+
+					sf::Vector2f impulse = collisionNormal * (-2.0f * velocityAlongNormal);
+					velE += impulse;
+
+					e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
+
+				}
 			}
 		}
 	}
@@ -816,13 +816,14 @@ void Scene_Xyrus::sUpdate(sf::Time dt)
 	checkPlayerActive(dt, tempPos);
 	checkInfectionStatus(dt);
 	immunizationInit(dt);
-	if(_immunizationInitDone)
+	sLifespan(dt);
+	if (_immunizationInitDone)
 		immunizationCheck(dt);
 
 	if (_immunizationCheckDone)
 		checkWinLoss();
-	
-	if(tempPos != _player->getComponent<CTransform>().pos)
+
+	if (tempPos != _player->getComponent<CTransform>().pos)
 		infectUpdate();
 }
 
@@ -864,7 +865,7 @@ void Scene_Xyrus::drawImmuneScore() {
 void Scene_Xyrus::getInfectedScore() {
 	for (auto e : _entityManager.getEntities("Area")) {
 
-		if(e->getComponent<CState>().state=="immune"){
+		if (e->getComponent<CState>().state == "immune") {
 			_immuneScore++;
 
 		}
@@ -872,7 +873,7 @@ void Scene_Xyrus::getInfectedScore() {
 }
 
 void Scene_Xyrus::drawImmunePercentage() {
-	float score =0 ;
+	float score = 0;
 	for (auto e : _entityManager.getEntities("Area")) {
 
 		if (e->getComponent<CState>().state == "immune") {
@@ -880,7 +881,7 @@ void Scene_Xyrus::drawImmunePercentage() {
 
 		}
 	}
-	
+
 	_immunePercentage = (score / 399.0f) * 100.f;
 
 
@@ -899,9 +900,9 @@ void Scene_Xyrus::drawTargetPercent() {
 	std::stringstream ss;
 	ss << std::fixed << std::setprecision(0) << _targetPercentage;
 	std::string str = ss.str();
-	sf::Text percent = sf::Text( str + "%", Assets::getInstance().getFont("main"), 25);
+	sf::Text percent = sf::Text(str + "%", Assets::getInstance().getFont("main"), 25);
 	sf::Text text = sf::Text("IMMUNE TARGET", Assets::getInstance().getFont("main"), 20);
-	
+
 	text.setPosition(230.f, 10.f);
 	percent.setPosition(280.f, 30.f);
 	_game->window().draw(text);
@@ -919,7 +920,7 @@ void Scene_Xyrus::drawGameOver() {
 
 	sf::Vector2f  pos{ 315.f, 300.f };
 	auto message = _entityManager.addEntity("GameOver");
-	
+
 	message->addComponent<CTransform>(pos);
 	message->addComponent<CAnimation>(Assets::getInstance().getAnimation("gameover"));
 	auto& anim = message->getComponent<CAnimation>().animation;
@@ -941,7 +942,7 @@ void Scene_Xyrus::drawTimer()
 void Scene_Xyrus::drawWin() {
 	std::string message;
 
-	if(_win)
+	if (_win)
 		message = "win";
 	else
 		message = "lose";
@@ -972,14 +973,14 @@ void Scene_Xyrus::drawBorder() {
 	auto windowHeight = _game->_window.getSize().y;
 
 
-	for (int c{ 0 };  c <  windowWidth / blW; c++) {
-		
+	for (int c{ 0 }; c < windowWidth / blW; c++) {
+
 		sf::CircleShape border;
 		border.setRadius(1);
 		border.setFillColor(sf::Color{ 0,180,0 });
-		border.setPosition({ c*10.f, 60.f });
+		border.setPosition({ c * 10.f, 60.f });
 		_game->window().draw(border);
-		
+
 	}
 
 }
@@ -998,7 +999,7 @@ void Scene_Xyrus::drawLife() {
 		for (int i = 0; i < _lives; ++i) {
 			sf::Vector2f newPos = originalPos;
 			newPos.x += i * 20.f;
-			
+
 			anim.getSprite().setPosition(newPos);
 			_game->window().draw(anim.getSprite());
 		}
@@ -1012,7 +1013,35 @@ void Scene_Xyrus::spawnLife() {
 	auto life = _entityManager.addEntity("life");
 	life->addComponent<CTransform>(pos);
 	life->addComponent<CAnimation>(Assets::getInstance().getAnimation("lives"));
-	
+
 
 }
+
+
+void Scene_Xyrus::spawnSmallShapes(sf::Vector2f pos) {
+	sf::CircleShape circle;
+
+	for (int i = 0; i < 8; i++) {
+		auto c = _entityManager.addEntity("circle");
+		sf::Vector2f direction = uVecBearing(360 / 8 * i);
+		c->addComponent<CTransform>(pos, direction * 50.f);
+		c->addComponent<CAnimation>(Assets::getInstance().getAnimation("smallCircle"));
+		c->addComponent<CLifespan>(0.8);
+	}
+
+}
+
+void Scene_Xyrus::sLifespan(sf::Time dt) {
+
+	for (auto e : _entityManager.getEntities()) {
+		if (e->hasComponent<CLifespan>()) {
+			auto& life = e->getComponent<CLifespan>();
+			life.remaining -= dt;
+			if (life.remaining < sf::Time::Zero)
+				e->destroy();
+		}
+	}
+
+}
+
 

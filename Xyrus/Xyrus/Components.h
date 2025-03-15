@@ -100,4 +100,14 @@ struct CInput : public Component
 };
 
 
+struct CLifespan : public Component
+{
+    sf::Time total{ sf::Time::Zero };
+    sf::Time remaining{ sf::Time::Zero };
+
+    CLifespan() = default;
+    CLifespan(float t) : total(sf::seconds(t)), remaining{ sf::seconds(t) } {}
+
+};
+
 #endif //BREAKOUT_COMPONENTS_H

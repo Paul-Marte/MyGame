@@ -82,6 +82,8 @@ class Scene_Xyrus : public Scene {
 	void					drawLife();
 	void					drawBorder();
 	void					spawnLife();
+	void					spawnSmallShapes(sf::Vector2f pos);
+	void					sLifespan(sf::Time dt);
 	void					drawGameOver();
 	void					drawTimer();
 	void					drawWin();
