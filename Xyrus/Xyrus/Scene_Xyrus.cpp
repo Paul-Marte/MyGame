@@ -394,7 +394,8 @@ void Scene_Xyrus::sKeepWBCInBounds()
 
 void Scene_Xyrus::spawnSlime(sf::Vector2f mPos)
 {
-	if (_entityManager.getEntities("Slime").size() < 1 && !_immunization) {
+
+	if (_entityManager.getEntities("Slime").size() < 1 && !_immunization && _lives>0) {
 		auto slime = _entityManager.addEntity("Slime");
 		sf::Vector2f  pos = _player->getComponent<CTransform>().pos;
 		sf::Vector2f  vel = _slimeConfig.S * uVecBearing(bearing(mPos - pos));
@@ -461,6 +462,9 @@ void Scene_Xyrus::sTeleport()
 
 void Scene_Xyrus::sInfect()
 {
+	if (_immunization || _lives < 0)
+		return;
+
 	auto& pos = _player->getComponent<CTransform>().pos;
 	for (auto e : _entityManager.getEntities("Area")) {
 		auto eGB = e->getComponent<CTransform>().pos;
