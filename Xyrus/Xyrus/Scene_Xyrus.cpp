@@ -97,6 +97,13 @@ void Scene_Xyrus::sRender()
 			rect.setOutlineThickness(1.f);
 			_game->window().draw(rect);
 		}
+
+		if (e->hasComponent<CLifespan>()) {
+			auto& life = e->getComponent<CLifespan>();
+			auto bColor = anim.getSprite().getColor();
+			bColor.a = 255 * (life.remaining / life.total);
+			anim.getSprite().setColor(bColor);
+		}
 	}
 
 	if (_immunizationCheckDone) {
@@ -1023,14 +1030,14 @@ void Scene_Xyrus::spawnLife() {
 
 
 void Scene_Xyrus::spawnSmallShapes(sf::Vector2f pos) {
-	sf::CircleShape circle;
+	//sf::CircleShape circle;
 
 	for (int i = 0; i < 8; i++) {
 		auto c = _entityManager.addEntity("circle");
 		sf::Vector2f direction = uVecBearing(360 / 8 * i);
 		c->addComponent<CTransform>(pos, direction * 50.f);
 		c->addComponent<CAnimation>(Assets::getInstance().getAnimation("smallCircle"));
-		c->addComponent<CLifespan>(0.8);
+		c->addComponent<CLifespan>(1);
 	}
 
 }
@@ -1041,8 +1048,11 @@ void Scene_Xyrus::sLifespan(sf::Time dt) {
 		if (e->hasComponent<CLifespan>()) {
 			auto& life = e->getComponent<CLifespan>();
 			life.remaining -= dt;
-			if (life.remaining < sf::Time::Zero)
+		
+			if (life.remaining <= sf::Time::Zero) {
+				life.remaining = sf::Time::Zero;
 				e->destroy();
+			}
 		}
 	}
 
