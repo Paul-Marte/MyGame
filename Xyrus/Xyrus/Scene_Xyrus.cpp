@@ -925,6 +925,7 @@ void Scene_Xyrus::checkWinLoss()
 {
 	if (_immunePercentage > _targetPercentage)
 		_win = true;
+
 }
 
 void Scene_Xyrus::drawGameOver() {
@@ -938,6 +939,12 @@ void Scene_Xyrus::drawGameOver() {
 	auto& tfm = message->getComponent<CTransform>();
 	anim.getSprite().setPosition(tfm.pos);
 	_game->window().draw(anim.getSprite());
+	auto& posSound = _player->getComponent<CTransform>().pos;
+	if (!_finalSound) {
+		MusicPlayer::getInstance().stop();
+		SoundPlayer::getInstance().play("gameover", posSound);
+		_finalSound = true;
+	}
 
 }
 
@@ -952,11 +959,26 @@ void Scene_Xyrus::drawTimer()
 
 void Scene_Xyrus::drawWin() {
 	std::string message;
+	auto& posSound = _player->getComponent<CTransform>().pos;
 
 	if (_win)
+	{
 		message = "win";
-	else
+		if(!_finalSound){
+			MusicPlayer::getInstance().stop();
+			SoundPlayer::getInstance().play("win", posSound);
+			_finalSound = true;
+		}
+	}
+	else {
 		message = "lose";
+		if (!_finalSound) {
+			MusicPlayer::getInstance().stop();
+		SoundPlayer::getInstance().play("lose", posSound);
+		_finalSound = true;
+		}
+	}
+		
 
 
 

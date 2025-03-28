@@ -28,6 +28,9 @@ Sound slime             ../assets/Sound/slime2.ogg
 Sound teleport          ../assets/Sound/game-bonus-2-294436.ogg
 Sound infect            ../assets/Sound/game-bonus-144751.ogg
 Sound blocked           ../assets/Sound/retro-game-shot-152052.ogg
+Sound lose              ../assets/Sound/080047_lose_funny_retro_video-game-80925.ogg
+Sound win           	../assets/Sound/victory-96688.ogg
+Sound gameover          ../assets/Sound/game-over-arcade-6435.ogg
 
 JSON                    ../assets/Textures/xyrusCopy.json
 

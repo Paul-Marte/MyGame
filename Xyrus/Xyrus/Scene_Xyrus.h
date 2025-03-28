@@ -29,6 +29,7 @@ class Scene_Xyrus : public Scene {
 	bool					_immunization = false;
 	bool					_immunizationInitDone = false;
 	bool					_immunizationCheckDone = false;
+	bool					_finalSound = false;
 	bool					_win = false;
 	bool                    _drawTextures{ true };
 	bool                    _drawAABB{ false };
