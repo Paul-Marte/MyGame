@@ -83,11 +83,11 @@ void Scene_Menu::sRender()
 	footer.setFillColor(normalColor);
 	footer.setPosition(32, 472);
 
-	sf::Text credit2("All sound effect and music are from PIXABAY.COM",
+	/*sf::Text credit2("All sound effect and music are from PIXABAY.COM",
 		Assets::getInstance().getFont("main"), 20);
 	credit2.setFillColor(normalColor);
 	auto credit2Width = credit2.getGlobalBounds().width;
-	credit2.setPosition((630 - credit2Width) / 2.f, 600);
+	credit2.setPosition((630 - credit2Width) / 2.f, 600);*/
 
 
 	_game->window().clear(backgroundColor);
@@ -110,7 +110,7 @@ void Scene_Menu::sRender()
 	}
 
 	_game->window().draw(footer);
-	_game->window().draw(credit2);
+	//_game->window().draw(credit2);
 
 }
 
