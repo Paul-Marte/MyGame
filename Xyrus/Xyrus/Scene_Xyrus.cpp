@@ -53,8 +53,9 @@ void Scene_Xyrus::update(sf::Time dt)
 		//_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
 
 		_lives--;
-
+		SoundPlayer::getInstance().play("death", _player->getComponent<CTransform>().pos);
 		_timer = _timerThreshold;
+		
 		_player->destroy();
 	}
 
@@ -318,6 +319,7 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 				if (_entityManager.getEntities("life").size() > 0) {
 					_lives--;
 					_player->getComponent<CState>().state = "dead";
+					SoundPlayer::getInstance().play("death", _player->getComponent<CTransform>().pos);
 					_player->destroy();
 					_timer = _timerThreshold;
 

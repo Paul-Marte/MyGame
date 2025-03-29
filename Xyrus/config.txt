@@ -22,11 +22,11 @@ Sprite Title            Title 0 0 630 630
 
 #
 # SOUNDS
-Sound death             ../assets/Sound/froggerDie.wav
+Sound death             ../assets/Sound/die.wav
 Sound hop               ../assets/Sound/froggerMove.wav
 Sound slime             ../assets/Sound/slime2.ogg
-Sound teleport          ../assets/Sound/game-bonus-2-294436.ogg
-Sound infect            ../assets/Sound/game-bonus-144751.ogg
+Sound teleport          ../assets/Sound/game-bonus-144751.ogg
+Sound infect            ../assets/Sound/game-bonus-2-294436.ogg
 Sound blocked           ../assets/Sound/retro-game-shot-152052.ogg
 Sound lose              ../assets/Sound/080047_lose_funny_retro_video-game-80925.ogg
 Sound win           	../assets/Sound/victory-96688.ogg
