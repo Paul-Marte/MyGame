@@ -573,7 +573,7 @@ void Scene_Xyrus::immunizationCheck(sf::Time dt) {
 					if (nE->getComponent<CState>().state != "none" && nE->getComponent<CAnimation>().animation.getName() != "immune") {
 						nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("immune"));
 						nE->getComponent<CState>().state = "immune";
-
+						SoundPlayer::getInstance().play("infect", _player->getComponent<CTransform>().pos);
 						return;
 					}
 				}
