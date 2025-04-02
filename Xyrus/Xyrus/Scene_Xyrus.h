@@ -23,7 +23,9 @@ class Scene_Xyrus : public Scene {
 
 	int						_lives{ 5 };
 	int						_immuneScore{ 0 };
+	int						_infectedScore{ 0 };
 	int						_scoreTotal{ 0 };
+	int						_scoreInfectedTotal{ 0 };
 
 	bool					_isFinish = false;
 	bool					_immunization = false;
@@ -36,6 +38,7 @@ class Scene_Xyrus : public Scene {
 	bool                    _drawCam{ false };
 	float					_targetPercentage = 100.00f;
 	float					_immunePercentage = 0.f;
+	float					_infectedPercentage = 0.f;
 	float					_timer = 90.f;
 	const float				_timerThreshold = 90.f;
 
@@ -85,6 +88,8 @@ class Scene_Xyrus : public Scene {
 	void					spawnLife();
 	void					spawnSmallShapes(sf::Vector2f pos);
 	void					sLifespan(sf::Time dt);
+	void					drawInfectedScore();
+	void					drawInfectedPercentage();
 	void					drawGameOver();
 	void					drawTimer();
 	void					drawWin();

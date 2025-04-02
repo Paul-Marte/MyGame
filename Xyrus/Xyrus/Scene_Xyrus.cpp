@@ -46,11 +46,12 @@ void Scene_Xyrus::init(const std::string& levelPath) {
 
 void Scene_Xyrus::update(sf::Time dt)
 {
+	if (_isPaused)
+		return;
 	if (_lives > 0 && !_isFinish && !_immunization)
 		_timer -= dt.asSeconds();
 
 	if (_timer <= 0.f) {
-		//_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("die"));
 
 		_lives--;
 		SoundPlayer::getInstance().play("death", _player->getComponent<CTransform>().pos);
@@ -73,8 +74,16 @@ void Scene_Xyrus::sRender()
 	}
 	drawLife();
 	drawBorder();
-	drawImmuneScore();
-	drawImmunePercentage();
+
+	if (_immunizationInitDone) {
+		drawImmuneScore();
+		drawImmunePercentage();
+	}
+	else {
+		drawInfectedScore();
+		drawInfectedPercentage();
+	}
+
 	drawTargetPercent();
 	drawTimer();
 
@@ -568,12 +577,16 @@ void Scene_Xyrus::immunizationCheck(sf::Time dt) {
 
 				auto& posNE = nE->getComponent<CTransform>().pos;
 
-				if (((posE.y == posNE.y) && (posE.x - posNE.x == 30.f || posE.x - posNE.x == -30.f)) || ((posE.x == posNE.x) && (posE.y - posNE.y == 30.f || posE.y - posNE.y == -30.f))) {
+				if (
+					((posE.y == posNE.y) && (posE.x - posNE.x == 30.f || posE.x - posNE.x == -30.f)) 
+					|| ((posE.x == posNE.x) && (posE.y - posNE.y == 30.f || posE.y - posNE.y == -30.f))
+					|| ((posE.y - posNE.y == 30.f || posE.y - posNE.y == -30.f) && (posE.x - posNE.x == 30.f || posE.x - posNE.x == -30.f))
+					) {
 
 					if (nE->getComponent<CState>().state != "none" && nE->getComponent<CAnimation>().animation.getName() != "immune") {
 						nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("immune"));
 						nE->getComponent<CState>().state = "immune";
-						SoundPlayer::getInstance().play("infect", _player->getComponent<CTransform>().pos);
+						SoundPlayer::getInstance().play("count", _player->getComponent<CTransform>().pos);
 						return;
 					}
 				}
@@ -599,6 +612,7 @@ void Scene_Xyrus::checkInfectionStatus(sf::Time dt)
 		if (state.state == "preinfect" && animation.animation.getName() == "preinfect" && state.time <= sf::Time::Zero) {
 			e->addComponent<CAnimation>(Assets::getInstance().getAnimation("infected"));
 			e->getComponent<CState>().state = "infected";
+			_infectedScore++;
 		}
 	}
 
@@ -806,8 +820,6 @@ void Scene_Xyrus::checkSlimeOutOfBounce()
 
 void Scene_Xyrus::sUpdate(sf::Time dt)
 {
-	if (_isPaused)
-		return;
 
 
 	SoundPlayer::getInstance().removeStoppedSounds();
@@ -854,11 +866,7 @@ void Scene_Xyrus::sAnimation(sf::Time dt) {
 			auto& anim = e->getComponent<CAnimation>();
 
 			anim.animation.update(dt);
-
-			/*if (_player->getComponent<CAnimation>().animation.getName() == "die" && anim.animation.hasEnded() && e->getTag() == "player") {
-				_player->getComponent<CTransform>().pos = sf::Vector2f{ _game->windowSize().x / 2.f, _game->windowSize().y - 20.f };
-				_player->addComponent<CAnimation>(Assets::getInstance().getAnimation("up"));
-			}*/
+			
 		}
 	}
 }
@@ -1082,4 +1090,37 @@ void Scene_Xyrus::sLifespan(sf::Time dt) {
 
 }
 
+void Scene_Xyrus::drawInfectedScore() {
+
+
+	std::string str = std::to_string(_infectedScore);
+	sf::Text text = sf::Text("INFECTED: " + str, Assets::getInstance().getFont("main"), 15);
+
+	text.setPosition(10.f, 10.f);
+	_game->window().draw(text);
+
+}
+
+
+void Scene_Xyrus::drawInfectedPercentage() {
+	float score = 0;
+	for (auto e : _entityManager.getEntities("Area")) {
+
+		if (e->getComponent<CState>().state == "infected") {
+			score++;
+		}
+	}
+
+	_infectedPercentage = (score / 399.0f) * 100.f;
+
+
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(2) << _infectedPercentage;
+	std::string str = ss.str();
+	sf::Text text = sf::Text("% INFECTED: " + str + "%", Assets::getInstance().getFont("main"), 15);
+
+	text.setPosition(10.f, 30.f);
+	_game->window().draw(text);
+
+}
 
