@@ -14,6 +14,8 @@ Music gaeThemeOld         ../assets/Music/frogger.ogg
 # Textures
 Texture Background      ../assets/Textures/BlackRed.jpg
 Texture Menu		../assets/Textures/MenuBackground600.jpg
+Texture Int		../assets/Textures/instruction.jpg
+Texture controls	../assets/Textures/controls.jpg
 Texture Entities        ../assets/Textures/xyrus.png
 
 # Sprites

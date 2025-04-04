@@ -54,7 +54,7 @@ void Scene_Xyrus::update(sf::Time dt)
 	if (_timer <= 0.f) {
 
 		_lives--;
-		SoundPlayer::getInstance().play("death", _player->getComponent<CTransform>().pos);
+		SoundPlayer::getInstance().play("death", _player->getComponent<CTransform>().pos, 30.f);
 		_timer = _timerThreshold;
 		
 		_player->destroy();
@@ -277,12 +277,12 @@ void Scene_Xyrus::playerMovement(sf::Time dt)
 			auto ePos = e->getComponent<CTransform>().pos;
 			if (tempPos == ePos) {
 				if (e->getComponent<CState>().state == "infected" || e->getComponent<CState>().state == "preinfect" || e->getComponent<CState>().state == "immune") {
-					SoundPlayer::getInstance().play("blocked", pos);
+					SoundPlayer::getInstance().play("blocked", pos, 10.f);
 					return;
 				}
 			}
 		}
-		SoundPlayer::getInstance().play("hop", pos);
+		SoundPlayer::getInstance().play("hop", pos, 5.f);
 		pos += pv;
 
 	}
@@ -328,7 +328,7 @@ void Scene_Xyrus::checkPlayerWBCCollision()
 				if (_entityManager.getEntities("life").size() > 0) {
 					_lives--;
 					_player->getComponent<CState>().state = "dead";
-					SoundPlayer::getInstance().play("death", _player->getComponent<CTransform>().pos);
+					SoundPlayer::getInstance().play("death", _player->getComponent<CTransform>().pos, 30.f);
 					_player->destroy();
 					_timer = _timerThreshold;
 
@@ -422,7 +422,7 @@ void Scene_Xyrus::spawnSlime(sf::Vector2f mPos)
 		slime->addComponent<CBoundingBox>(bb);
 		slime->getComponent<CTransform>().angle = bearing(vel) + 90;
 		slime->addComponent<CAnimation>(Assets::getInstance().getAnimation("slime")).animation.getSprite().setRotation(slime->getComponent<CTransform>().angle = bearing(vel) + 90);
-		SoundPlayer::getInstance().play("slime", pos);
+		SoundPlayer::getInstance().play("slime", pos, 40.f);
 	}
 
 }
@@ -463,10 +463,10 @@ void Scene_Xyrus::sTeleport()
 				if (pos.x >= (eGBpos.x - 15.f) && pos.x < (eGBpos.x - 15.f) + eGB.x && pos.y >= (eGBpos.y - 15.f) && pos.y < (eGBpos.y - 15.f) + eGB.y) {
 
 					if (e->getComponent<CState>().state != "none") {
-						SoundPlayer::getInstance().play("blocked", pos);
+						SoundPlayer::getInstance().play("blocked", pos, 10.f);
 						return;
 					}
-					SoundPlayer::getInstance().play("teleport", pos);
+					SoundPlayer::getInstance().play("teleport", pos, 40.f);
 					_player->getComponent<CTransform>().pos = eGBpos;
 					infectUpdate();
 					s->destroy();
@@ -490,7 +490,7 @@ void Scene_Xyrus::sInfect()
 		if (eGB == pos) {
 			if (e->getComponent<CState>().state == "none") {
 				e->getComponent<CState>().state = "preinfect";
-				SoundPlayer::getInstance().play("infect", pos);
+				SoundPlayer::getInstance().play("infect", pos, 5.f);
 			}
 		}
 	}
@@ -521,7 +521,7 @@ void Scene_Xyrus::sImmunization()
 			if (e->getComponent<CState>().state == "none") {
 				e->getComponent<CState>().state = "immunization";
 				e->getComponent<CState>().time = sf::seconds(8.f);
-				SoundPlayer::getInstance().play("infect", pos);
+				SoundPlayer::getInstance().play("infect", pos, 10.f);
 			}
 		}
 	}
@@ -586,7 +586,7 @@ void Scene_Xyrus::immunizationCheck(sf::Time dt) {
 					if (nE->getComponent<CState>().state != "none" && nE->getComponent<CAnimation>().animation.getName() != "immune") {
 						nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("immune"));
 						nE->getComponent<CState>().state = "immune";
-						SoundPlayer::getInstance().play("count", _player->getComponent<CTransform>().pos);
+						SoundPlayer::getInstance().play("count", _player->getComponent<CTransform>().pos, 5.f);
 						return;
 					}
 				}
@@ -771,6 +771,7 @@ void Scene_Xyrus::checkAreaWBCCollision()
 					spawnSmallShapes(posNE);
 					nE->getComponent<CState>().state = "none";
 					nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("empty"));
+					nE->getComponent<CState>().time = sf::seconds(4.f);
 
 				}
 			}
@@ -952,7 +953,7 @@ void Scene_Xyrus::drawGameOver() {
 	auto& posSound = _player->getComponent<CTransform>().pos;
 	if (!_finalSound) {
 		MusicPlayer::getInstance().stop();
-		SoundPlayer::getInstance().play("gameover", posSound);
+		SoundPlayer::getInstance().play("gameover", posSound, 30.f);
 		_finalSound = true;
 	}
 
@@ -976,7 +977,7 @@ void Scene_Xyrus::drawWin() {
 		message = "win";
 		if(!_finalSound){
 			MusicPlayer::getInstance().stop();
-			SoundPlayer::getInstance().play("win", posSound);
+			SoundPlayer::getInstance().play("win", posSound, 30.f);
 			_finalSound = true;
 		}
 	}
@@ -984,7 +985,7 @@ void Scene_Xyrus::drawWin() {
 		message = "lose";
 		if (!_finalSound) {
 			MusicPlayer::getInstance().stop();
-		SoundPlayer::getInstance().play("lose", posSound);
+		SoundPlayer::getInstance().play("lose", posSound, 30.f);
 		_finalSound = true;
 		}
 	}

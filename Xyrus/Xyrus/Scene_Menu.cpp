@@ -1,5 +1,7 @@
 #include "Scene_Menu.h"
 #include "Scene_Xyrus.h"
+#include "Scene_Instruction.h"
+#include "Scene_Controls.h"
 #include "MusicPlayer.h"
 #include <memory>
 
@@ -36,6 +38,8 @@ void Scene_Menu::init()
 	registerAction(sf::Keyboard::Down, "DOWN");
 	registerAction(sf::Keyboard::D, "SELECT");
 	registerAction(sf::Keyboard::Escape, "QUIT");
+	registerAction(sf::Keyboard::I, "INSTRUCTION");
+	registerAction(sf::Keyboard::C, "CONTROLS");
 
 	_title = "XYRUS";
 	_menuStrings.push_back("Level 1");
@@ -83,11 +87,11 @@ void Scene_Menu::sRender()
 	footer.setFillColor(normalColor);
 	footer.setPosition(32, 472);
 
-	/*sf::Text credit2("All sound effect and music are from PIXABAY.COM",
+	sf::Text inst("PRESS    I FOR INSTRUCTION    ||    C FOR CONTROLS",
 		Assets::getInstance().getFont("main"), 20);
-	credit2.setFillColor(normalColor);
-	auto credit2Width = credit2.getGlobalBounds().width;
-	credit2.setPosition((630 - credit2Width) / 2.f, 600);*/
+	inst.setFillColor(normalColor);
+	auto instWidth = inst.getGlobalBounds().width;
+	inst.setPosition((630 - instWidth) / 2.f, 600);
 
 
 	_game->window().clear(backgroundColor);
@@ -110,7 +114,7 @@ void Scene_Menu::sRender()
 	}
 
 	_game->window().draw(footer);
-	//_game->window().draw(credit2);
+	_game->window().draw(inst);
 
 }
 
@@ -130,6 +134,14 @@ void Scene_Menu::sDoAction(const Command& action)
 		else if (action.name() == "SELECT")
 		{			
 				_game->changeScene("SELECT", std::make_shared<Scene_Xyrus>(_game, _levelPaths[_menuIndex]));
+		}
+		else if (action.name() == "INSTRUCTION")
+		{
+			_game->changeScene("INSTRUCTION", std::make_shared<Scene_Instruction>(_game));
+		}
+		else if (action.name() == "CONTROLS")
+		{
+			_game->changeScene("CONTROLS", std::make_shared<Scene_Controls>(_game));
 		}
 		else if (action.name() == "QUIT")
 		{

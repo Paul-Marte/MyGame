@@ -78,10 +78,10 @@ struct CBoundingBox : public Component
 
 struct CState : public Component {
     std::string state{ "none" };
-    sf::Time time{ sf::seconds(5.f) };
+    sf::Time time{ sf::seconds(4.f) };
 
     CState() = default;
-    CState(const std::string& s, sf::Time t = sf::seconds(5.f)) : state(s), time(t) {}
+    CState(const std::string& s, sf::Time t = sf::seconds(4.f)) : state(s), time(t) {}
 };
 
 
