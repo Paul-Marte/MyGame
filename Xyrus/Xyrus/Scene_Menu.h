@@ -23,6 +23,26 @@ public:
 	void sRender() override;
 	void sDoAction(const Command& action) override;
 
+	void sUpdate(sf::Time dt);
+
+	void sSpawnWBC(sf::Time dt);
+
+	void sAnimation(sf::Time dt);
+
+	void sKeepWBCInBounds();
+
+	void spawnWBC();
+
+	void sMovement(sf::Time dt);
+
+	void checkWBCWBCCollision();
+
+	void sSpawnSmallShapes(sf::Time dt);
+
+	void spawnSmallShapes();
+
+	void sLifespan(sf::Time dt);
+
 
 };
 

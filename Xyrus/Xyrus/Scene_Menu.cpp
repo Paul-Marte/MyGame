@@ -5,6 +5,12 @@
 #include "MusicPlayer.h"
 #include <memory>
 
+namespace {
+	std::random_device rd;
+	std::mt19937 rng(rd());
+}
+
+
 void Scene_Menu::onEnd()
 {
 	_game->window().close();
@@ -60,7 +66,7 @@ void Scene_Menu::init()
 
 void Scene_Menu::update(sf::Time dt)
 {
-	_entityManager.update();
+	sUpdate(dt);
 }
 
 
@@ -81,7 +87,6 @@ void Scene_Menu::sRender()
 
 	static const sf::Color backgroundColor(100, 100, 255);
 
-
 	sf::Text footer("UP: W    DOWN: S   SELECT:D    QUIT: ESC",
 		Assets::getInstance().getFont("main"), 20);
 	footer.setFillColor(normalColor);
@@ -96,12 +101,32 @@ void Scene_Menu::sRender()
 
 	_game->window().clear(backgroundColor);
 
+	
+
 	sf::FloatRect menuBounds = _menuText.getLocalBounds();
 	_menuText.setFillColor(normalColor);
 	_menuText.setString(_title);
 	_menuText.setPosition(_game->window().getSize().x / 2.f, 10);
 	_menuText.setOrigin(menuBounds.width / 2.f, 0.f);
 	_game->window().draw(sprite);
+
+	for (auto& e : _entityManager.getEntities()) {
+		if (e->getTag() == "bkg")
+			continue;
+
+		auto& anim = e->getComponent<CAnimation>().animation;
+		auto& tfm = e->getComponent<CTransform>();
+		anim.getSprite().setPosition(tfm.pos);
+		_game->window().draw(anim.getSprite());
+
+		if (e->hasComponent<CLifespan>()) {
+			auto& life = e->getComponent<CLifespan>();
+			auto bColor = anim.getSprite().getColor();
+			bColor.a = 255 * (life.remaining / life.total);
+			anim.getSprite().setColor(bColor);
+		}
+
+	}
 	_game->window().draw(_menuText);
 
 	for (size_t i{ 0 }; i < _menuStrings.size(); ++i)
@@ -109,12 +134,16 @@ void Scene_Menu::sRender()
 		_menuText.setString(_menuStrings.at(i));
 		_menuText.setFillColor((i == _menuIndex ? selectedColor : normalColor));
 		_menuText.setOrigin(0.f, 0.f);
-		_menuText.setPosition(32, 32 + (i + 1) * 96);
+		_menuText.setPosition(64, 32 + (i + 1) * 96);
 		_game->window().draw(_menuText);
 	}
 
+
+
 	_game->window().draw(footer);
 	_game->window().draw(inst);
+
+
 
 }
 
@@ -150,3 +179,214 @@ void Scene_Menu::sDoAction(const Command& action)
 	}
 
 }
+
+void Scene_Menu::sUpdate(sf::Time dt)
+{
+
+
+	_entityManager.update();
+
+	sSpawnWBC(dt);
+	sSpawnSmallShapes(dt);
+	sAnimation(dt);
+	sKeepWBCInBounds();
+	sMovement(dt);
+	checkWBCWBCCollision();
+	sLifespan(dt);
+
+}
+
+
+void Scene_Menu::sSpawnWBC(sf::Time dt)
+{
+	static bool firstSpawn = true;
+	static sf::Time countDownTimerSpawnWBC{ sf::Time::Zero };
+
+	if (firstSpawn || countDownTimerSpawnWBC <= sf::Time::Zero) {
+		if (_entityManager.getEntities("WBC").size() < 5)
+			spawnWBC();
+
+		firstSpawn = false;
+		countDownTimerSpawnWBC = sf::seconds(5.f);
+	}
+
+	countDownTimerSpawnWBC -= dt;
+}
+
+void Scene_Menu::sAnimation(sf::Time dt) {
+	for (auto e : _entityManager.getEntities()) {
+
+		if (e->getComponent<CAnimation>().has) {
+			auto& anim = e->getComponent<CAnimation>();
+
+			anim.animation.update(dt);
+
+		}
+	}
+}
+
+void Scene_Menu::sKeepWBCInBounds()
+{
+	for (auto e : _entityManager.getEntities("WBC")) {
+		if (e->hasComponent<CTransform>()) {
+			auto& pos = e->getComponent<CTransform>().pos;
+			auto& vel = e->getComponent<CTransform>().vel;
+			auto width = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width;
+			auto height = e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().height;
+
+			if ((pos.x < width / 2) || (pos.x > _game->windowSize().x - width / 2))
+			{
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
+				vel.x *= -1;
+
+			}
+
+			if ((pos.y < height / 2) || (pos.y > _game->windowSize().y - height / 2))
+			{
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
+				vel.y *= -1;
+
+			}
+		}
+	}
+}
+
+void Scene_Menu::spawnWBC()
+{
+	auto view = _game->_window.getView();
+	sf::FloatRect getViewBounds(
+		view.getCenter().x - view.getSize().x / 2.f,
+		view.getCenter().y - view.getSize().y / 2.f + 60.f,
+		view.getSize().x,
+		view.getSize().y - 60.f
+	);
+
+	auto bounds = getViewBounds;
+
+	std::uniform_real_distribution<float>   d_width(15.f, bounds.width - 15.f);
+	std::uniform_real_distribution<float>   d_height((15.f < 101.f) ? 101.f : 15.f, bounds.height - 15.f);
+	std::uniform_real_distribution<float>   d_speed(80, 150);
+	std::uniform_real_distribution<float>   d_dir(-1, 1);
+
+	sf::Vector2f  pos(d_width(rng), d_height(rng));
+	sf::Vector2f  vel = sf::Vector2f(d_dir(rng), d_dir(rng));
+	vel = normalize(vel);
+
+	vel = d_speed(rng) * vel;
+
+	auto wbc = _entityManager.addEntity("WBC");
+	wbc->addComponent<CTransform>(pos, vel);
+	auto bb = wbc->addComponent<CAnimation>(Assets::getInstance().getAnimation("WBC")).animation.getBB();
+	wbc->addComponent<CBoundingBox>(bb);
+}
+
+void Scene_Menu::sMovement(sf::Time dt)
+{
+
+	for (auto& e : _entityManager.getEntities()) {
+		auto& tfm = e->getComponent<CTransform>();
+		tfm.pos += tfm.vel * dt.asSeconds();
+		tfm.angle += tfm.angVel * dt.asSeconds();
+
+	}
+
+}
+
+
+void Scene_Menu::checkWBCWBCCollision()
+{
+	for (auto e : _entityManager.getEntities("WBC")) {
+		auto& velE = e->getComponent<CTransform>().vel;
+		auto& posE = e->getComponent<CTransform>().pos;
+
+		for (auto nE : _entityManager.getEntities("WBC")) {
+			if (e == nE) {
+				continue;
+			}
+
+			auto& velNE = nE->getComponent<CTransform>().vel;
+			auto& posNE = nE->getComponent<CTransform>().pos;
+
+
+			if (dist(posE, posNE) < e->getComponent<CAnimation>().animation.getSprite().getGlobalBounds().width / 2.0f) {
+
+				sf::Vector2f collisionNormal = normalize(posE - posNE);
+
+				sf::Vector2f relativeVelocity = velE - velNE;
+
+				float velocityAlongNormal = relativeVelocity.x * collisionNormal.x + relativeVelocity.y * collisionNormal.y;
+
+				if (velocityAlongNormal > 0) {
+					continue;
+				}
+
+				sf::Vector2f impulse = collisionNormal * (-1.0f * velocityAlongNormal);
+				velE += impulse;
+				velNE -= impulse;
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
+				nE->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
+			}
+		}
+	}
+}
+
+void Scene_Menu::sSpawnSmallShapes(sf::Time dt)
+{
+	static bool firstSpawn = true;
+	static sf::Time countDownTimerSpawn{ sf::Time::Zero };
+
+	if (firstSpawn || countDownTimerSpawn <= sf::Time::Zero) {
+		if (_entityManager.getEntities("WBC").size() < 7)
+			spawnSmallShapes();
+
+		firstSpawn = false;
+		countDownTimerSpawn = sf::seconds(2.f);
+	}
+
+	countDownTimerSpawn -= dt;
+}
+
+
+void Scene_Menu::spawnSmallShapes() {
+	auto view = _game->_window.getView();
+	sf::FloatRect getViewBounds(
+		view.getCenter().x - view.getSize().x / 2.f,
+		view.getCenter().y - view.getSize().y / 2.f + 60.f,
+		view.getSize().x,
+		view.getSize().y - 60.f
+	);
+
+	auto bounds = getViewBounds;
+
+	std::uniform_real_distribution<float>   d_width(15.f, bounds.width - 15.f);
+	std::uniform_real_distribution<float>   d_height((15.f < 101.f) ? 101.f : 15.f, bounds.height - 15.f);
+
+	sf::Vector2f  pos(d_width(rng), d_height(rng));
+
+
+	for (int i = 0; i < 8; i++) {
+		auto c = _entityManager.addEntity("circle");
+		sf::Vector2f direction = uVecBearing(360 / 8 * i);
+		c->addComponent<CTransform>(pos, direction * 50.f);
+		c->addComponent<CAnimation>(Assets::getInstance().getAnimation("smallCircle"));
+		c->addComponent<CLifespan>(3);
+	}
+
+}
+
+void Scene_Menu::sLifespan(sf::Time dt) {
+
+	for (auto e : _entityManager.getEntities()) {
+		if (e->hasComponent<CLifespan>()) {
+			auto& life = e->getComponent<CLifespan>();
+			life.remaining -= dt;
+
+			if (life.remaining <= sf::Time::Zero) {
+				life.remaining = sf::Time::Zero;
+				e->destroy();
+			}
+		}
+	}
+
+}
+
