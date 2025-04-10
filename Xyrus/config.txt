@@ -16,6 +16,7 @@ Texture Background      ../assets/Textures/BlackRed.jpg
 Texture Menu		../assets/Textures/MenuBackground600.jpg
 Texture Int		../assets/Textures/instruction.jpg
 Texture controls	../assets/Textures/controls.jpg
+Texture concept		../assets/Textures/concept.jpg
 Texture Entities        ../assets/Textures/xyrus.png
 
 # Sprites

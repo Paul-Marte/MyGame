@@ -2,6 +2,7 @@
 #include "Scene_Xyrus.h"
 #include "Scene_Instruction.h"
 #include "Scene_Controls.h"
+#include "Scene_Concept.h"
 #include "MusicPlayer.h"
 #include <memory>
 
@@ -35,7 +36,7 @@ Scene_Menu::Scene_Menu(GameEngine* gameEngine)
 
 void Scene_Menu::init()
 {
-	MusicPlayer::getInstance().play("gameTheme"); //TO CHANGE
+	MusicPlayer::getInstance().play("gameTheme");
 	MusicPlayer::getInstance().setVolume(90);
 
 	registerAction(sf::Keyboard::W, "UP");
@@ -46,11 +47,12 @@ void Scene_Menu::init()
 	registerAction(sf::Keyboard::Escape, "QUIT");
 	registerAction(sf::Keyboard::I, "INSTRUCTION");
 	registerAction(sf::Keyboard::C, "CONTROLS");
+	registerAction(sf::Keyboard::G, "CONCEPT");
 
 	_title = "XYRUS";
-	_menuStrings.push_back("Level 1");
-	_menuStrings.push_back("Level 2");
-	_menuStrings.push_back("Level 3");
+	_menuStrings.push_back("EASY");
+	_menuStrings.push_back("MEDIUM");
+	_menuStrings.push_back("HARD");
 
 	_levelPaths.push_back("../level1.txt"); 
 	_levelPaths.push_back("../level2.txt");  
@@ -92,7 +94,7 @@ void Scene_Menu::sRender()
 	footer.setFillColor(normalColor);
 	footer.setPosition(32, 472);
 
-	sf::Text inst("PRESS    I FOR INSTRUCTION    ||    C FOR CONTROLS",
+	sf::Text inst("G: GAME CONCCEPT    ||   i: INSTRUCTION    ||    C: CONTROLS",
 		Assets::getInstance().getFont("main"), 20);
 	inst.setFillColor(normalColor);
 	auto instWidth = inst.getGlobalBounds().width;
@@ -172,6 +174,10 @@ void Scene_Menu::sDoAction(const Command& action)
 		{
 			_game->changeScene("CONTROLS", std::make_shared<Scene_Controls>(_game));
 		}
+		else if (action.name() == "CONCEPT")
+		{
+			_game->changeScene("CONCEPT", std::make_shared<Scene_Concept>(_game));
+		}
 		else if (action.name() == "QUIT")
 		{
 			onEnd();
@@ -236,6 +242,14 @@ void Scene_Menu::sKeepWBCInBounds()
 
 			if ((pos.x < width / 2) || (pos.x > _game->windowSize().x - width / 2))
 			{
+				if ((pos.x < width / 2)) {
+					pos.x = width / 2;
+				}
+
+				if ((pos.x > _game->windowSize().x - width / 2)) {
+					pos.x = _game->windowSize().x - width / 2;
+				}
+				
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
 				vel.x *= -1;
 
@@ -243,6 +257,13 @@ void Scene_Menu::sKeepWBCInBounds()
 
 			if ((pos.y < height / 2) || (pos.y > _game->windowSize().y - height / 2))
 			{
+				if (pos.y < height / 2) {
+					pos.y = height / 2;
+				}
+
+				if (pos.y > _game->windowSize().y - height / 2) {
+					pos.y = _game->windowSize().y - height / 2;
+				}
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("wbcol"));
 				vel.y *= -1;
 
